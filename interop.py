@@ -8,7 +8,23 @@
 
 import argparse
 import logging
+import infiniband.sample_tests as sample_tests
 
+##
+# Adding Files and Tests 
+##
+# when adding more source files, make sure to import them (see above)
+# after importing them, make sure to concatenate all of the files' TESTS 
+# and GROUPS dictionaries into the variables TESTS and GROUPS as seen below
+# this will allow the arguments to be called properly
+# see the sample test file for more details
+##
+
+TESTS=sample_tests.TESTS
+GROUPS=sample_tests.GROUPS
+
+# This defines the log files location for ease of changing location 
+LOGS = "./logs/"
 
 ##
 # Logging notes 
@@ -17,28 +33,50 @@ import logging
 # logger.debug() - use for development and debugging purposes
 # logger.error() - use when something is preventing the test from completing
 ##
+class Tests:
+    _persist_methods = ['get', 'save', 'delete']
+
+    def __init__(self, persister):
+        self._persister = persister
+
+    def __getattr__(self, attribute):
+        if attribute in self._persist_methods:
+            return getattr(self._persister, attribute)
+
+class Test:
+
+    def get(self):
+        print("ping test")
+
+def split_args(arg):
+    return arg.split(',').split('|').split('/')
 
 def main():
+
 
     # Creating argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
     parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
     parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
+    parser.add_argument("-p","--print_tests",action="store_true" ,help="Prints tests currently available for running")
 
     # Running parser
     args = parser.parse_args()
 
     # Setting up logging 
-    # create logger with 'spam_application'
+    # create logger with 'rdma_parant'
     logger = logging.getLogger('rdma_parent')
     logger.setLevel(logging.DEBUG)
 
-    # create file handler which logs even debug messages
-    fh = logging.FileHandler('debug_rdma.log')
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter('%(name)s-%(levelname)s-%(message)s')
+
+    # create file handler which logs debug messages
+    fh = logging.FileHandler(LOGS + 'debug.log')
     fh.setLevel(logging.DEBUG)
 
-    # Set debug level if receives -d argument
+    # Print debug statements if it receives -d argument
     if args.debug:
         db = logging.StreamHandler()
         db.setLevel(logging.DEBUG)
@@ -48,8 +86,10 @@ def main():
     ch = logging.StreamHandler()
     ch.setLevel(logging.ERROR)
 
-    # create formatter and add it to the handlers
-    formatter = logging.Formatter('%(name)s-%(levelname)s-%(message)s')
+    # create file handler which logs debug messages
+    feh = logging.FileHandler(LOGS + 'error.log')
+    feh.setLevel(logging.ERROR)
+
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
 
@@ -63,13 +103,21 @@ def main():
 
     if args.group:
         logger.info("Running tests in groups: {}".format(args.group))
+        #for index, argument in enumerate(split_args(args.group)):
+            #if argument in GROUPS:
+
 
     if args.test:
         logger.info("Running tests: {}".format(args.test))
+        for argument in split_args(args.test):
+
+            # Use argument as dictionary key and catch bad values
+            TESTS[argument]()
 
     logger.error("sample error message")
     logger.debug("sample debug message")
-
+    #test = Test()
+    #tests=Tests(test).get()
 
 if __name__ == "__main__":
     main()
