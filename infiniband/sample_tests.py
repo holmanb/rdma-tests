@@ -18,6 +18,6 @@ TESTS={
         }
 
 GROUPS={
-        "latency_tests", (sample_test1, sample_test2),
-        "bandwidth_tests", (sample_test2)
+        "latency_tests": (sample_test1, sample_test2),
+        "bandwidth_tests": (sample_test2)
         }

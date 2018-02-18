@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 
 ##
@@ -50,25 +50,26 @@ class Test:
         print("ping test")
 
 
-def split_args(arg):
-    a=re.split(r"[|/,]+", arg)
-    print(a)
-    return a
-
-
 def validate_args(args, dictionary, logger):
-        for key in split_args(args):
+
+        # split the args on / or ,
+        arg_dict = re.split(r"[/,]+", args)
+
+        for key in arg_dict: 
             try:
                 dictionary[key]
             except KeyError:
+                for dict_key,value in dictionary.items():
+                    logger.debug("key: {} value{}".format(dict_key,value))
                 logger.error("{} is not a valid input.  Use {} -p to print options".format(key, os.path.basename(__file__)))
                 exit(-1)
-
+        return arg_dict
 
 def main():
 
-
+    ##
     # Creating argument parser
+    ##
     parser = argparse.ArgumentParser()
     parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
     parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
@@ -85,14 +86,14 @@ def main():
     if args.print_groups:
         print("-pg has not been implimented yet")
 
-
+    ##
     # Setting up logging 
-    # create logger with 'rdma_parant'
+    ##
     logger = logging.getLogger('rdma_parent')
     logger.setLevel(logging.DEBUG)
 
     # create formatter and add it to the handlers
-    formatter = logging.Formatter('%(name)s-%(levelname)s-%(message)s')
+    formatter = logging.Formatter('%(levelname)s-%(message)s')
 
     # create file handler which logs debug messages
     fh = logging.FileHandler(LOGS + 'debug.log')
@@ -102,6 +103,7 @@ def main():
     if args.debug:
         db = logging.StreamHandler()
         db.setLevel(logging.DEBUG)
+        db.setFormatter(formatter)
         logger.addHandler(db)
 
     # create console handler with a higher log level
@@ -114,10 +116,12 @@ def main():
 
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
+    feh.setFormatter(logging.ERROR)
 
     # add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
+    logger.addHandler(feh)
 
     # Interpreting args
     if not args.group and not args.test:
@@ -131,16 +135,14 @@ def main():
     if args.test:
 
         logger.debug("Running tests: {}".format(args.test))
-        validate_args(args.test, TESTS,logger)
-        for argument in split_args(args.test):
+        arg_list = validate_args(args.test, TESTS,logger)
+        for argument in arg_list: 
             logger.debug("running test {}".format(argument))
 
             # Use argument as dictionary key and catch bad values
+            TESTS[argument]()
 
-            test_function=TESTS[argument]()
-            print("test function {}".format(test_function))
-
-    logger.error("sample error message")
+    #logger.error("sample error message")
     logger.debug("sample debug message")
     #test = Test()
     #tests=Tests(test).get()
