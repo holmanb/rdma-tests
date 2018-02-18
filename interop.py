@@ -9,7 +9,8 @@
 import argparse
 import logging
 import infiniband.sample_tests as sample_tests
-
+import os
+import re
 ##
 # Adding Files and Tests 
 ##
@@ -48,8 +49,21 @@ class Test:
     def get(self):
         print("ping test")
 
+
 def split_args(arg):
-    return arg.split(',').split('|').split('/')
+    a=re.split(r"[|/,]+", arg)
+    print(a)
+    return a
+
+
+def validate_args(args, dictionary, logger):
+        for key in split_args(args):
+            try:
+                dictionary[key]
+            except KeyError:
+                logger.error("{} is not a valid input.  Use {} -p to print options".format(key, os.path.basename(__file__)))
+                exit(-1)
+
 
 def main():
 
@@ -59,10 +73,18 @@ def main():
     parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
     parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
     parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
-    parser.add_argument("-p","--print_tests",action="store_true" ,help="Prints tests currently available for running")
+    parser.add_argument("-pt","--print_tests",action="store_true" ,help="Prints tests currently available for running")
+    parser.add_argument("-pg","--print_groups",action="store_true" ,help="Prints groups currently available for running")
 
     # Running parser
     args = parser.parse_args()
+
+    if args.print_tests:
+        print("-pt has not been implimented yet") 
+
+    if args.print_groups:
+        print("-pg has not been implimented yet")
+
 
     # Setting up logging 
     # create logger with 'rdma_parant'
@@ -106,13 +128,17 @@ def main():
         #for index, argument in enumerate(split_args(args.group)):
             #if argument in GROUPS:
 
-
     if args.test:
-        logger.info("Running tests: {}".format(args.test))
+
+        logger.debug("Running tests: {}".format(args.test))
+        validate_args(args.test, TESTS,logger)
         for argument in split_args(args.test):
+            logger.debug("running test {}".format(argument))
 
             # Use argument as dictionary key and catch bad values
-            TESTS[argument]()
+
+            test_function=TESTS[argument]()
+            print("test function {}".format(test_function))
 
     logger.error("sample error message")
     logger.debug("sample debug message")
