@@ -13,10 +13,7 @@ class Test:
         self._args = args
 
     def run(self):
-        if self._args is not None:
-            return self._script(self._args)
-        else:
-            return self._script()
+        return self._script(self._args)
 
     def get_name(self):
         return self._name
@@ -39,4 +36,3 @@ if __name__ == "__main__":
     testing_the_test.set_description(description)
     assert testing_the_test.run() == 10, "Test class is broken" 
     assert testing_the_test.get_description() == description, "Test class is broken"
-
