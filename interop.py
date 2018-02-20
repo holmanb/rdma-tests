@@ -103,6 +103,11 @@ def main():
     # create formatter and add it to the handlers
     formatter = logging.Formatter('%(levelname)s-%(message)s')
 
+
+    # Make a LOG file if it doesn't exist
+    if not os.path.exists(LOGS):
+        os.makedirs(LOGS)
+
     # create file handler which logs debug messages
     fh = logging.FileHandler(LOGS + 'debug.log')
     fh.setLevel(logging.DEBUG)
@@ -161,7 +166,7 @@ def main():
             # Use argument as dictionary key and catch bad values
             TESTS[argument]()
 
-#    logger.error("sample error message")
+    #logger.error("sample error message")
     logger.debug("sample debug message")
 
 
