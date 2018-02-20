@@ -6,11 +6,16 @@
 # Description: This is intended for running RDMA tests for the OFA Interoperability test plan 
 ##
 
+# Default classes
 import argparse
 import logging
 import infiniband.sample_tests as sample_tests
 import os
 import re
+
+# User Defined Classes 
+import Test
+
 ##
 # Adding Files and Tests 
 ##
@@ -34,20 +39,22 @@ LOGS = "./logs/"
 # logger.debug() - use for development and debugging purposes
 # logger.error() - use when something is preventing the test from completing
 ##
-class Tests:
-    _persist_methods = ['get', 'save', 'delete']
 
-    def __init__(self, persister):
-        self._persister = persister
 
-    def __getattr__(self, attribute):
-        if attribute in self._persist_methods:
-            return getattr(self._persister, attribute)
-
-class Test:
-
-    def get(self):
-        print("ping test")
+### IGNORE THESE TWO CLASSES, I'M JUST DOING A 
+### BIT OF EXPERIMENTATION HERE
+#class Tests:
+#    _persist_methods = ['get', 'save', 'delete']
+#
+#    def __init__(self, persister):
+#        self._persister = persister
+#
+#    def __getattr__(self, attribute):
+#        if attribute in self._persist_methods:
+#            return getattr(self._persister, attribute)
+#class Test:
+#    def get(self):
+#        print("ping test")
 
 
 def validate_args(args, dictionary, logger):
@@ -64,6 +71,7 @@ def validate_args(args, dictionary, logger):
                 logger.error("{} is not a valid input.  Use {} -p to print options".format(key, os.path.basename(__file__)))
                 exit(-1)
         return arg_dict
+
 
 def main():
 
@@ -123,18 +131,29 @@ def main():
     logger.addHandler(ch)
     logger.addHandler(feh)
 
+    ##
     # Interpreting args
+    ##
+
+    # Run all of the tests (expected common use case
     if not args.group and not args.test:
-        logger.info("Running all of the tests")
+        logger.debug("Running all of the tests")
 
+        # Iterate through and run tests
+        for key, test in TESTS.items():
+            test()
+
+    # Run a group of tests
     if args.group:
-        logger.info("Running tests in groups: {}".format(args.group))
-        #for index, argument in enumerate(split_args(args.group)):
-            #if argument in GROUPS:
+        logger.debug("Running tests in groups: {}".format(args.group))
+        print("not implimented yet")
 
+    # Run a list of tests by name
     if args.test:
 
         logger.debug("Running tests: {}".format(args.test))
+
+        # Validate argument
         arg_list = validate_args(args.test, TESTS,logger)
         for argument in arg_list: 
             logger.debug("running test {}".format(argument))
@@ -142,10 +161,10 @@ def main():
             # Use argument as dictionary key and catch bad values
             TESTS[argument]()
 
-    #logger.error("sample error message")
+#    logger.error("sample error message")
     logger.debug("sample debug message")
-    #test = Test()
-    #tests=Tests(test).get()
+
+
 
 if __name__ == "__main__":
     main()
