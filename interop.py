@@ -89,17 +89,20 @@ def main():
     args = parser.parse_args()
 
     if args.print_tests:
-        print("Printing available test")
-        for key, value in TESTS.items():
-            print("{}: {}".format(key, value.get_description()))
+        print("Printing available tests...\n")
+        print("\n NAME\t\t\tDESCRIPTION\n ====                   ===========")
+        for key, value in sorted(TESTS.items()):
+            print(" {}\t\t{}".format(key, value.get_description()))
         exit(0)
 
     if args.print_groups:
-        print("Printing available groups")
-        for key, group in GROUPS.items():
-            print("GROUP [{}]".format(key))
-            for value in group: 
-                print("{}: {}".format(value.get_name(), value.get_description()))
+        print("Printing available groups...\n")
+        for key, group in sorted(GROUPS.items()):
+            print("\n GROUP\t\t\t{}".format(key))
+            print("=======\t\t\t{}=".format("".join(["=" for char in key])))
+            print("\n NAME\t\t\tDESCRIPTION")
+            for value in sorted(group):
+                print(" {}\t\t{}".format(value.get_name(), value.get_description()))
             print("")
         exit(0)
 
