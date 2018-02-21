@@ -78,7 +78,7 @@ def main():
     ##
     # Creating argument parser
     ##
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
     parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
     parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
