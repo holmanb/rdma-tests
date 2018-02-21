@@ -4,7 +4,7 @@
 class Test:
 
     def __init__(self, name=None, description=None, script=None, args=None):
-        """ Used for creating a common interface for all tests.
+        """ Creates a common interface for all tests.
         """
 
         self._name = name
@@ -12,7 +12,17 @@ class Test:
         self._script = script
         self._args = args
 
+    def __lt__(self, other):
+        """ Allows Tests to be sorted.  Default sorting should be by name.
+        """
+        try:
+            return self._name < other._name
+        except AttributeError:
+            return NotImplemented
+
     def run(self):
+        """ Executes the test.
+        """
         if self._args is not None:
             return self._script(self._args)
         else:
