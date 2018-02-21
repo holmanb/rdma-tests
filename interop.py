@@ -89,10 +89,19 @@ def main():
     args = parser.parse_args()
 
     if args.print_tests:
-        print("-pt has not been implimented yet") 
+        print("Printing available test")
+        for key, value in TESTS.items():
+            print("{}: {}".format(key, value.get_description()))
+        exit(0)
 
     if args.print_groups:
-        print("-pg has not been implimented yet")
+        print("Printing available groups")
+        for key, group in GROUPS.items():
+            print("GROUP [{}]".format(key))
+            for value in group: 
+                print("{}: {}".format(value.get_name(), value.get_description()))
+            print("")
+        exit(0)
 
     ##
     # Setting up logging 
@@ -146,7 +155,7 @@ def main():
 
         # Iterate through and run tests
         for key, test in TESTS.items():
-            test()
+            test.run()
 
     # Run a group of tests
     if args.group:
@@ -164,7 +173,7 @@ def main():
             logger.debug("running test {}".format(argument))
 
             # Use argument as dictionary key and catch bad values
-            TESTS[argument]()
+            TESTS[argument].run()
 
     #logger.error("sample error message")
     logger.debug("sample debug message")
