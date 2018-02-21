@@ -3,18 +3,21 @@
 
 ##
 # Name: interop.py
-# Description: This is intended for running RDMA tests for the OFA Interoperability test plan 
+# Description: 
+# This is the test execution engine for running RDMA tests for the OFA Interoperability test plan.
+# It allows user selection of individual tests, or test groups to be run.                 
 ##
 
-# Default classes
+# Python Standard Library modules 
 import argparse
 import logging
-import infiniband.sample_tests as sample_tests
 import os
 import re
 
 # User Defined Classes 
 import Test
+import infiniband.sample_tests as sample_tests
+
 
 ##
 # Adding Files and Tests 
@@ -29,8 +32,10 @@ import Test
 TESTS=sample_tests.TESTS
 GROUPS=sample_tests.GROUPS
 
+
 # This defines the log files location for ease of changing location 
 LOGS = "./logs/"
+
 
 ##
 # Logging notes 
@@ -41,39 +46,60 @@ LOGS = "./logs/"
 ##
 
 
-### IGNORE THESE TWO CLASSES, I'M JUST DOING A 
-### BIT OF EXPERIMENTATION HERE
-#class Tests:
-#    _persist_methods = ['get', 'save', 'delete']
-#
-#    def __init__(self, persister):
-#        self._persister = persister
-#
-#    def __getattr__(self, attribute):
-#        if attribute in self._persist_methods:
-#            return getattr(self._persister, attribute)
-#class Test:
-#    def get(self):
-#        print("ping test")
+def print_tests(args):
+    """ Prints formated tests available for testing 
+    """
+    # Printing available tests
+    if args.print_tests:
+        print("Printing available tests...\n")
+        print("\n NAME\t\t\tDESCRIPTION\n ====                   ===========")
+        for key, value in sorted(TESTS.items()):
+            print(" {}\t\t{}".format(key, value.get_description()))
+        print("")
+
+
+def print_groups(args):
+    """ Prints formatted groups available for testing 
+    """
+    # Printing groups
+    print("Printing available groups...\n")
+    for key, group in sorted(GROUPS.items()):
+        print("\n GROUP\t\t\t{}".format(key))
+        print("=======\t\t\t{}=".format("".join(["=" for char in key])))
+        print("\n NAME\t\t\tDESCRIPTION")
+        for value in sorted(group):
+            print(" {}\t\t{}".format(value.get_name(), value.get_description()))
+        print("")
+
 
 
 def validate_args(args, dictionary, logger):
+    """ Validates lists of tests of lists of groups.
+    """
 
-        # split the args on / or ,
-        arg_dict = re.split(r"[/,]+", args)
+    # split the args on / or ,
+    arg_dict = re.split(r"[/,]+", args)
 
-        for key in arg_dict: 
-            try:
-                dictionary[key]
-            except KeyError:
-                for dict_key,value in dictionary.items():
-                    logger.debug("key: {} value{}".format(dict_key,value))
-                logger.error("{} is not a valid input.  Use {} -p to print options".format(key, os.path.basename(__file__)))
-                exit(-1)
-        return arg_dict
+    for key in arg_dict:
+        try:
+            dictionary[key]
+
+        except KeyError:
+
+            # Fail
+            for dict_key,value in dictionary.items():
+                logger.debug("key: {} value{}".format(dict_key,value))
+            logger.error("{} is not a valid input.  Use {} -p to print options".format(key, os.path.basename(__name__)))
+            exit(-1)
+
+    # Success
+    return arg_dict
 
 
 def main():
+    """ Test bench
+    """
+
 
     ##
     # Creating argument parser
@@ -88,23 +114,22 @@ def main():
     # Running parser
     args = parser.parse_args()
 
-    if args.print_tests:
-        print("Printing available tests...\n")
-        print("\n NAME\t\t\tDESCRIPTION\n ====                   ===========")
-        for key, value in sorted(TESTS.items()):
-            print(" {}\t\t{}".format(key, value.get_description()))
+    # Print groups and tests
+    if args.print_groups and args.print_tests:
+        print_tests(args)
+        print_groups(args)
         exit(0)
 
+    # Print groups
     if args.print_groups:
-        print("Printing available groups...\n")
-        for key, group in sorted(GROUPS.items()):
-            print("\n GROUP\t\t\t{}".format(key))
-            print("=======\t\t\t{}=".format("".join(["=" for char in key])))
-            print("\n NAME\t\t\tDESCRIPTION")
-            for value in sorted(group):
-                print(" {}\t\t{}".format(value.get_name(), value.get_description()))
-            print("")
+        print_groups(args)
         exit(0)
+
+    # Print tests
+    if args.print_tests:
+        print_tests(args)
+        exit(0)
+
 
     ##
     # Setting up logging 
@@ -148,6 +173,7 @@ def main():
     logger.addHandler(ch)
     logger.addHandler(feh)
 
+
     ##
     # Interpreting args
     ##
@@ -182,6 +208,6 @@ def main():
     logger.debug("sample debug message")
 
 
-
 if __name__ == "__main__":
     main()
+
