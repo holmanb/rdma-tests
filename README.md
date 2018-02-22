@@ -1,7 +1,7 @@
 interop
 =======
 
-*A test light-weight flexible framework for executing OFA Interoperability tests*
+*A light-weight and flexible framework for executing OFA Interoperability tests*
 
 interop is a simple test framework. By default it will run all available tests, but individual tests or groups of tests may be specified.  Additional tests may be added with ease. 
 
