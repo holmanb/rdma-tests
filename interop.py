@@ -9,6 +9,7 @@
 ##
 
 # Python Standard Library modules 
+import inspect
 import argparse
 import logging
 import os
@@ -19,6 +20,7 @@ import Test
 import infiniband.sample_tests as sample_tests
 
 
+modules = [sample_tests]
 ##
 # Adding Files and Tests 
 ##
@@ -28,8 +30,23 @@ import infiniband.sample_tests as sample_tests
 # this will allow the arguments to be called properly
 # see the sample test file for more details
 ##
+def isTest(obj):
+    return isinstance(obj, Test.Test)
 
-TESTS=sample_tests.TESTS
+def getTests():
+    module_list=[]
+    for module in modules:
+        module_list+=inspect.getmembers(module, isTest)
+    return module_list
+
+
+def print_dict(my_dict):
+    for key, value in my_dict.items():
+        print("{} {}".format(key, value))
+
+
+TESTS=dict(getTests())
+
 GROUPS=sample_tests.GROUPS
 
 
