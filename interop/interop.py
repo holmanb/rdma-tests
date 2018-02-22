@@ -16,10 +16,11 @@ import os
 import re
 
 # User Defined Classes 
-import interop.Test
-import interop.infiniband.sample_tests as sample_tests
+import testlib.infiniband.sample_tests
+import testlib.testclass
 
-modules = [sample_tests]
+modules = [testlib.infiniband.sample_tests]
+
 
 ##
 # Adding Files and Tests 
@@ -33,7 +34,7 @@ modules = [sample_tests]
 def isTest(obj):
     """ Passed to inspect.getmembers
     """
-    return isinstance(obj, Test.Test)
+    return isinstance(obj, testlib.testclass.Test)
 
 def getTests():
     """Gets the tests
@@ -47,11 +48,12 @@ def getTests():
 
 TESTS=dict(getTests())
 
-GROUPS=sample_tests.GROUPS
+GROUPS=testlib.infiniband.sample_tests
 
 
 # This defines the log files location for ease of changing location 
-LOGS = "./logs/error.log"
+LOGPATH = "./logs"
+LOGS = LOGPATH + "/error.log"
 
 
 ##
@@ -121,7 +123,7 @@ def main():
     ##
     # Creating argument parser
     ##
-    parser = argparse.ArgumentParser(add_help=False)
+    parser = argparse.ArgumentParser()#add_help=False)
     parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
     parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
     parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
@@ -159,11 +161,11 @@ def main():
 
 
     # Make a LOG file if it doesn't exist
-    if not os.path.exists(LOGS):
-        os.makedirs(LOGS)
+    if not os.path.exists(LOGPATH):
+        os.makedirs(LOGPATH)
 
     # create file handler which logs debug messages
-    fh = logging.FileHandler(LOGS + 'debug.log')
+    fh = logging.FileHandler(LOGS)
     fh.setLevel(logging.DEBUG)
 
     # Print debug statements if it receives -d argument
