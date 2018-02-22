@@ -54,8 +54,7 @@ GROUPS=testlib.infiniband.sample_tests
 # This defines the log files location for ease of changing location 
 LOGPATH = "./logs"
 LOGS = LOGPATH + "/error.log"
-README = "../README.md"
-
+README = os.path.dirname( __file__ ) + "/../README.md"
 
 ##
 # Logging notes 
@@ -136,9 +135,11 @@ def main():
     args = parser.parse_args()
 
     # Prints help
-    with open(README) as file:
-        for line in file:
-            print(line,end="")
+    if args.help:
+        with open(README) as file:
+            for line in file:
+                print(line,end="")
+        exit(0)
 
     # Print groups and tests
     if args.print_groups and args.print_tests:
