@@ -19,8 +19,8 @@ import re
 import Test
 import infiniband.sample_tests as sample_tests
 
-
 modules = [sample_tests]
+
 ##
 # Adding Files and Tests 
 ##
@@ -51,7 +51,7 @@ GROUPS=sample_tests.GROUPS
 
 
 # This defines the log files location for ease of changing location 
-LOGS = "./logs/"
+LOGS = "./logs/error.log"
 
 
 ##
@@ -106,7 +106,7 @@ def validate_args(args, dictionary, logger):
             # Fail
             for dict_key,value in dictionary.items():
                 logger.debug("key: {} value{}".format(dict_key,value))
-            logger.error("{} is not a valid input.  Use {} -p to print options".format(key, os.path.basename(__name__)))
+            logger.error("{} is not a valid input.  Use {} -pt or {} -pg to print options".format(key,os.path.basename(__file__),os.path.basename(__file__)))
             exit(-1)
 
     # Success
@@ -178,12 +178,12 @@ def main():
     ch.setLevel(logging.ERROR)
 
     # create file handler which logs debug messages
-    feh = logging.FileHandler(LOGS + 'error.log')
+    feh = logging.FileHandler(LOGS)
     feh.setLevel(logging.ERROR)
 
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
-    feh.setFormatter(logging.ERROR)
+    feh.setFormatter(formatter)
 
     # add the handlers to the logger
     logger.addHandler(fh)
