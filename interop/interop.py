@@ -54,6 +54,7 @@ GROUPS=testlib.infiniband.sample_tests
 # This defines the log files location for ease of changing location 
 LOGPATH = "./logs"
 LOGS = LOGPATH + "/error.log"
+README = "../README.md"
 
 
 ##
@@ -123,15 +124,21 @@ def main():
     ##
     # Creating argument parser
     ##
-    parser = argparse.ArgumentParser()#add_help=False)
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
     parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
     parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
     parser.add_argument("-pt","--print_tests",action="store_true" ,help="Prints tests currently available for running")
     parser.add_argument("-pg","--print_groups",action="store_true" ,help="Prints groups currently available for running")
+    parser.add_argument("-h","--help", action="store_true",help="Prints out additional information")
 
     # Running parser
     args = parser.parse_args()
+
+    # Prints help
+    with open(README) as file:
+        for line in file:
+            print(line,end="")
 
     # Print groups and tests
     if args.print_groups and args.print_tests:

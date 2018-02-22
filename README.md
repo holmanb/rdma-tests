@@ -39,6 +39,3 @@ EXAMPLES
 	./interop.py -h | less
 
 	./interop.py -pt
-
-
-				 
