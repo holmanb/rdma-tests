@@ -79,4 +79,4 @@ if __name__ == "__main__":
     assert Test().add_group(["group1","group2"]).get_groups()==["group1","group2"], "Test class groups is broken"
     testing_the_test.add_group("group1")
     assert testing_the_test.get_groups()[0] == "group1", "Test class groups is broken"
-    
+
