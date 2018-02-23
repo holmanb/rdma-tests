@@ -11,7 +11,9 @@ class Test:
         self._description = description
         self._script = script
         self._args = args
-        self._group=group or []
+        self._group=[]
+        if group:
+            self.add_group(group)
 
     def __lt__(self, other):
         """ Allows Tests to be sorted.  Default sorting should be by name.
@@ -57,17 +59,24 @@ class Test:
             self._group += group
         else:
             raise TypeError
+        return self
 
     def get_groups(self):
         return self._group
 
 if __name__ == "__main__":
+    ##
+    # The following assertions are intended to verify modifications to this class.  
+    # Please execute this file directly after making modifications
+    ##
     testing_the_test = Test("MyName", "My name is a simple test", lambda x:x*2, 5)
     description = "quick description"
     testing_the_test.set_description(description)
     assert testing_the_test.run() == 10, "Test class is broken" 
     assert testing_the_test.get_description() == description, "Test class is broken"
     assert testing_the_test.get_groups() == [], "Test class is broken"
-    assert Test(group="group2").get_groups()=="group2", "Test class groups is broken"
+    assert Test(group="group2").get_groups()[0]=="group2", "Test class groups is broken"
+    assert Test().add_group(["group1","group2"]).get_groups()==["group1","group2"], "Test class groups is broken"
     testing_the_test.add_group("group1")
     assert testing_the_test.get_groups()[0] == "group1", "Test class groups is broken"
+    
