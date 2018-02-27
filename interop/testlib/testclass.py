@@ -43,9 +43,6 @@ class Test:
     def set_description(self, description):
         self._description = description
 
-    def get_description(self):
-        return self._description
-
     def add_group(self, group):
         """ accepts a string as a group, or a list of groups
         """
