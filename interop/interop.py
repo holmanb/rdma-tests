@@ -44,12 +44,25 @@ def getTests():
         module_list+=inspect.getmembers(module, isTest)
     return module_list
 
-
-
 TESTS=dict(getTests())
 
-GROUPS=testlib.infiniband.sample_tests
+# In this function it will scan through each test looking for a groups attribute. 
+# When it hits each test it will create/populate a dictionary with the key as the groups and 
+# the values as a list of the tests that are under that group.
+def getGroups():
+    groupDict=dict()
+    # Gets the groups that each test has 
+    for key, value in sorted(TESTS.items()):
+        for group in value.get_groups():
+            # if the group already exists then append this test to that groups list of values
+            if group in groupDict:
+                groupDict[group].append(value)
+            # if the group doesn't exist, then add that group as a key with the test as it's value
+            else:
+                groupDict[group] = [value]
+    return groupDict
 
+GROUPS=getGroups()      
 
 # This defines the log files location for ease of changing location 
 LOGPATH = "./logs"
