@@ -18,8 +18,3 @@ sampleTest2 = Test.Test(script=sample_test2)
 sampleTest2.set_description("this is the sample_test2 description")
 sampleTest2.set_name("sample2")
 sampleTest2.add_group("latency_tests")
-
-GROUPS={
-        "latency_tests": [sampleTest1, sampleTest2],
-        "bandwidth_tests": [sampleTest1]
-        }
