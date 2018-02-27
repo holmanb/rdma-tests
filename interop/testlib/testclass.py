@@ -64,7 +64,8 @@ class Test:
     def get_groups(self):
         return self._group
 
-if __name__ == "__main__":
+
+def validate():
     ##
     # The following assertions are intended to verify modifications to this class.  
     # Please execute this file directly after making modifications
@@ -80,3 +81,7 @@ if __name__ == "__main__":
     testing_the_test.add_group("group1")
     assert testing_the_test.get_groups()[0] == "group1", "Test class groups is broken"
 
+
+
+if __name__ == "__main__":
+    validate()
