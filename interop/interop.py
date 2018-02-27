@@ -229,7 +229,16 @@ def main():
     # Run a group of tests
     if args.group:
         logger.debug("Running tests in groups: {}".format(args.group))
-        print("not implimented yet")
+
+        # Validate argument
+        arg_list = validate_args(args.group, GROUPS, logger)
+        for argument in arg_list:
+
+            # GROUPS[argument] returns a list of all the tests within it
+            # run each test within that group
+            for test in GROUPS[argument]:
+                logger.debug("running test: {}".format(test.get_name()))
+                test.run()
 
     # Run a list of tests by name
     if args.test:
