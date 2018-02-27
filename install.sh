@@ -2,13 +2,12 @@
 yum install epel-release -y
 yum install python34 -y
 
-# Pip and paramiko
-curl -O https://bootstrap.pypa.io/get-pip.py
-/usr/bin/python3.4 get-pip.py
-mv gig-pip.py /tmp
+# Pip and python development package
+yum install python-pip
+yum install python-devel
 
-# Get paramiko dependencies
-yum install gcc libffi-devel python-devel openssl-devel -y
+# Get non-python paramiko dependencies
+yum install gcc libffi-devel openssl-devel -y
 
 # install paramiko
 pip install paramiko
