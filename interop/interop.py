@@ -8,12 +8,15 @@
 # It allows user selection of individual tests, or test groups to be run.                 
 ##
 
-# Python Standard Library modules 
+# Python3 Standard Library modules 
 import inspect
 import argparse
 import logging
 import os
 import re
+
+# Python3 additional modules
+import paramiko
 
 # User Defined Classes 
 import testlib.infiniband.sample_tests
