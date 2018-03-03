@@ -6,6 +6,12 @@
 # executes tests that validate that the software is working as intended
 ##
 
-import testclass as testclass
-testclass.validate()
+import testlib.testclass as testclass
+
+
+def run_validations():
+    """ This function runs all assertion validations.  Import and run future validations in this script.
+    """
+
+    testclass.validate()
 

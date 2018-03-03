@@ -21,6 +21,7 @@ import paramiko
 # User Defined Classes 
 import testlib.infiniband.sample_tests
 import testlib.testclass
+import testlib.validate
 
 modules = [testlib.infiniband.sample_tests]
 
@@ -65,12 +66,14 @@ def getGroups():
                 groupDict[group] = [value]
     return groupDict
 
-GROUPS=getGroups()      
+GROUPS=getGroups()
+
 
 # This defines the log files location for ease of changing location 
 LOGPATH = "./logs"
 LOGS = LOGPATH + "/error.log"
 README = os.path.dirname( __file__ ) + "/../README.md"
+
 
 ##
 # Logging notes 
@@ -145,6 +148,7 @@ def main():
     parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
     parser.add_argument("-pt","--print_tests",action="store_true" ,help="Prints tests currently available for running")
     parser.add_argument("-pg","--print_groups",action="store_true" ,help="Prints groups currently available for running")
+    parser.add_argument("-v", action="store_true",help="Turns off assertion validations")
     parser.add_argument("-h","--help", action="store_true",help="Prints out additional information")
 
     # Running parser
@@ -156,6 +160,10 @@ def main():
             for line in file:
                 print(line,end="")
         exit(0)
+
+    # Turns off test assertions
+    if not args.v:
+        testlib.validate.run_validations()
 
     # Print groups and tests
     if args.print_groups and args.print_tests:
