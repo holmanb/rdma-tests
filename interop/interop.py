@@ -112,7 +112,8 @@ def print_groups(args):
 
 
 def validate_args(args, dictionary, logger):
-    """ Validates lists of tests of lists of groups.
+    """ Validates lists of tests or lists of groups.
+        Returns a list of tests or groups to be roun.
     """
 
     # split the args on / or ,
@@ -243,13 +244,19 @@ def main():
 
         # Validate argument
         arg_list = validate_args(args.group, GROUPS, logger)
+
+        # Remove duplicate tests
+        test_list = set()
         for argument in arg_list:
 
             # GROUPS[argument] returns a list of all the tests within it
             # run each test within that group
-            for test in GROUPS[argument]:
-                logger.debug("running test: {}".format(test.get_name()))
-                test.run()
+            test_list |= set([test for test in GROUPS[argument]])
+
+        # Run all tests
+        for test in test_list:
+            logger.debug("running test: {}".format(test.get_name()))
+            test.run()
 
     # Run a list of tests by name
     if args.test:
