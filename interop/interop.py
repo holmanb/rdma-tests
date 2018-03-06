@@ -22,7 +22,6 @@ import importlib
 import paramiko
 
 # User Defined Classes 
-import testlib.infiniband.sample_tests
 import testlib.testclass
 import testlib.validate
 import testlib
@@ -50,7 +49,6 @@ def load_plugins():
         # Do recursive lookup on all relecant subdirectories of PACKAGE
         for file in directory:
             if not file.startswith('__') and not file.endswith('.py'):
-                print(file)
                 modules += import_dir(path+"/"+file , load_dir(path + '/' + file))
 
         # modules under testlib are not tests and do not need to by dynamically loaded 
