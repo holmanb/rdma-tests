@@ -3,7 +3,7 @@
 
 class Test:
 
-    def __init__(self, name=None, description=None, script=None, args=None, group=None):
+    def __init__(self, name=None, description=None, script=None, args=None, group=None, outputDict=None):
         """ Creates a common interface for all tests.
         """
 
@@ -12,6 +12,7 @@ class Test:
         self._script = script
         self._args = args
         self._group=[]
+        self._outputDict ={}
         if group:
             self.add_group(group)
 
@@ -26,9 +27,11 @@ class Test:
     def run(self):
         """ Executes the test.
         """
-        if self._args is not None:
+        if self._args is not None: 
+            self._outputDict = {"name" : self._name, "success" : "success condition", "comments" : "placeholder comments"}
             return self._script(self._args)
         else:
+            self._outputDict = {"name" : self._name, "success" : "success condition", "comments" : "placeholder comments"}
             return self._script()
 
     def get_name(self):

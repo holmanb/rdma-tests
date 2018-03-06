@@ -14,6 +14,7 @@ import argparse
 import logging
 import os
 import re
+import csv
 
 # Python3 additional modules
 import paramiko
@@ -237,6 +238,10 @@ def main():
         # Iterate through and run tests
         for key, test in TESTS.items():
             test.run()
+            with open('output.csv','a+') as f:
+                w = csv.DictWriter(f, test._outputDict.keys())
+                w.writeheader()
+                w.writerow(test._outputDict)
 
     # Run a group of tests
     if args.group:
