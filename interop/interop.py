@@ -15,6 +15,8 @@ import logging
 import os
 import re
 import csv
+import pkgutil
+import importlib
 
 # Python3 additional modules
 import paramiko
@@ -23,8 +25,55 @@ import paramiko
 import testlib.infiniband.sample_tests
 import testlib.testclass
 import testlib.validate
+import testlib
 
-modules = [testlib.infiniband.sample_tests]
+
+def load_plugins():
+    """ Wrapper to encapsulate dynamically importing plugins
+    """
+    pysearchre = re.compile('.py$', re.IGNORECASE)
+    PACKAGE = 'testlib'
+
+    def load_dir(dir):
+        """ Shorthand for getting the files in a directory
+        """
+        return  os.listdir(os.path.join(os.path.dirname(__file__), dir))
+
+
+    def import_dir(path, directory):
+        """ Recursively walks directories of the PACKAGE, and imports all submodules, returning the modules  
+        """
+
+        importmod = '.'.join(path.split('/'))
+        modules = []
+
+        # Do recursive lookup on all relecant subdirectories of PACKAGE
+        for file in directory:
+            if not file.startswith('__') and not file.endswith('.py'):
+                print(file)
+                modules += import_dir(path+"/"+file , load_dir(path + '/' + file))
+
+        # modules under testlib are not tests and do not need to by dynamically loaded 
+        if importmod == 'testlib':
+            return modules
+
+        # Module names are *.py files w/out the extension
+        # Functional programming here gets the plugins as strings
+        form_module = lambda py: '.' + os.path.splitext(py)[0]
+        plugins = map(form_module, filter(pysearchre.search, directory))
+
+        # Import the plugins
+        importlib.import_module(importmod)
+
+        # Compile list and return plugins
+        for plugin in plugins:
+            if not plugin.startswith('__'):
+                modules.append(importlib.import_module(importmod + plugin, package=PACKAGE))
+        return modules
+
+    # returns list of plugins after import
+    return import_dir(PACKAGE, load_dir(PACKAGE))
+
 
 
 ##
@@ -45,7 +94,7 @@ def getTests():
     """Gets the tests
     """
     module_list=[]
-    for module in modules:
+    for module in load_plugins():
         module_list+=inspect.getmembers(module, isTest)
     return module_list
 
