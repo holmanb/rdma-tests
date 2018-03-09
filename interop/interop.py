@@ -19,59 +19,21 @@ import pkgutil
 import importlib
 
 # Python3 additional modules
-import paramiko
+#import paramiko
 
-# User Defined Classes 
+# User Defined Modules 
+import testlib
 import testlib.testclass
 import testlib.validate
-import testlib
+from testlib.moduleloader import load_modules
 
 
-def load_plugins():
-    """ Wrapper to encapsulate dynamically importing plugins
-    """
-    pysearchre = re.compile('.py$', re.IGNORECASE)
-    PACKAGE = 'testlib'
-
-    def load_dir(dir):
-        """ Shorthand for getting the files in a directory
-        """
-        return  os.listdir(os.path.join(os.path.dirname(__file__), dir))
-
-
-    def import_dir(path, directory):
-        """ Recursively walks directories of the PACKAGE, and imports all submodules, returning the modules  
-        """
-
-        importmod = '.'.join(path.split('/'))
-        modules = []
-
-        # Do recursive lookup on all relecant subdirectories of PACKAGE
-        for file in directory:
-            if not file.startswith('__') and not file.endswith('.py'):
-                modules += import_dir(path+"/"+file , load_dir(path + '/' + file))
-
-        # modules under testlib are not tests and do not need to by dynamically loaded 
-        if importmod == 'testlib':
-            return modules
-
-        # Module names are *.py files w/out the extension
-        # Functional programming here gets the plugins as strings
-        form_module = lambda py: '.' + os.path.splitext(py)[0]
-        plugins = map(form_module, filter(pysearchre.search, directory))
-
-        # Import the plugins
-        importlib.import_module(importmod)
-
-        # Compile list and return plugins
-        for plugin in plugins:
-            if not plugin.startswith('__'):
-                modules.append(importlib.import_module(importmod + plugin, package=PACKAGE))
-        return modules
-
-    # returns list of plugins after import
-    return import_dir(PACKAGE, load_dir(PACKAGE))
-
+# File Locations 
+INTEROPDIR = os.path.dirname( __file__ )
+LOGPATH = INTEROPDIR +  "/logs"
+LOGS =  LOGPATH +  "/error.log"
+README = INTEROPDIR + "/../README.md"
+OUTPUT = INTEROPDIR + '/output.csv'
 
 
 ##
@@ -92,7 +54,7 @@ def getTests():
     """Gets the tests
     """
     module_list=[]
-    for module in load_plugins():
+    for module in load_modules(__file__, 'testlib', 'testlib'):
         module_list+=inspect.getmembers(module, isTest)
     return module_list
 
@@ -117,10 +79,6 @@ def getGroups():
 GROUPS=getGroups()
 
 
-# This defines the log files location for ease of changing location 
-LOGPATH = "./logs"
-LOGS = LOGPATH + "/error.log"
-README = os.path.dirname( __file__ ) + "/../README.md"
 
 
 ##
@@ -189,50 +147,7 @@ def main():
 
 
     ##
-    # Creating argument parser
-    ##
-    parser = argparse.ArgumentParser(description="OFA Interoperability Testing Framework", add_help=False)
-    parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
-    parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
-    parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
-    parser.add_argument("-pt","--print_tests",action="store_true" ,help="Prints tests currently available for running")
-    parser.add_argument("-pg","--print_groups",action="store_true" ,help="Prints groups currently available for running")
-    parser.add_argument("-v", action="store_true",help="Turns off assertion validations")
-    parser.add_argument("-h","--help", action="store_true",help="Prints out additional information")
-
-    # Running parser
-    args = parser.parse_args()
-
-    # Prints help
-    if args.help:
-        with open(README) as file:
-            for line in file:
-                print(line,end="")
-        exit(0)
-
-    # Turns off test assertions
-    if not args.v:
-        testlib.validate.run_validations()
-
-    # Print groups and tests
-    if args.print_groups and args.print_tests:
-        print_tests(args)
-        print_groups(args)
-        exit(0)
-
-    # Print groups
-    if args.print_groups:
-        print_groups(args)
-        exit(0)
-
-    # Print tests
-    if args.print_tests:
-        print_tests(args)
-        exit(0)
-
-
-    ##
-    # Setting up logging 
+    # Setting up logger
     ##
     logger = logging.getLogger('rdma_parent')
     logger.setLevel(logging.DEBUG)
@@ -249,12 +164,6 @@ def main():
     fh = logging.FileHandler(LOGS)
     fh.setLevel(logging.DEBUG)
 
-    # Print debug statements if it receives -d argument
-    if args.debug:
-        db = logging.StreamHandler()
-        db.setLevel(logging.DEBUG)
-        db.setFormatter(formatter)
-        logger.addHandler(db)
 
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -273,6 +182,58 @@ def main():
     logger.addHandler(ch)
     logger.addHandler(feh)
 
+    ##
+    # Creating argument parser
+    ##
+    parser = argparse.ArgumentParser(description="OFA Interoperability Testing Framework", add_help=False)
+    parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
+    parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
+    parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
+    parser.add_argument("-pt","--print_tests",action="store_true" ,help="Prints tests currently available for running")
+    parser.add_argument("-pg","--print_groups",action="store_true" ,help="Prints groups currently available for running")
+    parser.add_argument("-v", action="store_true",help="Turns off assertion validations")
+    parser.add_argument("-h","--help", action="store_true",help="Prints out additional information")
+
+    # Running parser
+    args = parser.parse_args()
+
+    # Print debug statements if it receives -d argument
+    if args.debug:
+        db = logging.StreamHandler()
+        db.setLevel(logging.DEBUG)
+        db.setFormatter(formatter)
+        logger.addHandler(db)
+
+    # Prints help
+    if args.help:
+        with open(README) as file:
+            for line in file:
+                print(line,end="")
+        exit(0)
+
+    # Turns off test assertions
+    if not args.v:
+        logger.debug("Running unit tests...")
+        testlib.validate.run_validations(__file__, 'testlib')
+
+    # Print groups and tests
+    if args.print_groups and args.print_tests:
+        print_tests(args)
+        print_groups(args)
+        exit(0)
+
+    # Print groups
+    if args.print_groups:
+        print_groups(args)
+        exit(0)
+
+    # Print tests
+    if args.print_tests:
+        print_tests(args)
+        exit(0)
+
+
+
 
     ##
     # Interpreting args
@@ -285,7 +246,7 @@ def main():
         # Iterate through and run tests
         for key, test in TESTS.items():
             test.run()
-            with open('output.csv','a+') as f:
+            with open(OUTPUT, 'a+') as f:
                 w = csv.DictWriter(f, test._outputDict.keys())
                 w.writeheader()
                 w.writerow(test._outputDict)
