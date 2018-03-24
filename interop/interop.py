@@ -23,7 +23,6 @@ import importlib
 
 # User Defined Modules 
 import testlib
-import testlib.testclass
 import testlib.validate
 from testlib.moduleloader import load_modules
 
@@ -48,7 +47,7 @@ OUTPUT = INTEROPDIR + '/output.csv'
 def isTest(obj):
     """ Passed to inspect.getmembers
     """
-    return isinstance(obj, testlib.testclass.Test)
+    return isinstance(obj, testlib.test.Test)
 
 def getTests():
     """Gets the tests

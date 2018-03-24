@@ -6,7 +6,7 @@
 # executes tests that validate that the software is working as intended
 ##
 import testlib
-import testlib.testclass as testclass
+import testlib.test as testclass
 from testlib.moduleloader import load_modules
 
 
