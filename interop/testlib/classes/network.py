@@ -44,7 +44,6 @@ class Network:
         # Assuming the following layout: 
         # IPAddress  hostname  alias1 alias2 aliasN 
         with open('../../hosts.conf') as hostfile:
-            interfaces = []
             item = 0
             ib = None
             eth = None
