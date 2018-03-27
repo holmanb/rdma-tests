@@ -2,6 +2,7 @@
 
 from subnetmanager import SubnetManager
 import sys
+import paramiko
 
 class Node:
     def __init__(self, sm=None, ibif=None, ethif=None, available=None):
@@ -9,10 +10,12 @@ class Node:
         self.ibif = ibif
         self.ethif = ethif
         self.sm = sm
-        if not sm and ethif:
-            self.sm = SubnetManager(ethif.ip)
-
         self._available=available
+        if sm:
+            sm.setNode(self)
+        if not sm and ethif:
+            self.sm = SubnetManager(node=self)
+
 
     def isUp(self):
         """ True if node is on the network
@@ -62,10 +65,14 @@ class Node:
         # Print subnet manager info
         self.sm.print()
 
-    def command(self):
+    def command(self, command, port='22', username='root'):
         """ Executes a single command on the node and returns the output
         """
-        pass 
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(str(self.ethif.ip), port, username, '')
+        stdin, stdout, stderr = ssh.exec_command(cmd)
+        return "".join(stdout.readlines())
 
 def validate():
     n=Node()
@@ -73,6 +80,7 @@ def validate():
     n.isDown()
     n.isAvailable()
     n.setAvailable(True)
+    print(n.command("whoami"))
 
 if __name__ == "__main__":
     validate()
