@@ -1,6 +1,7 @@
 # For handling project dependencies
 sudo yum install epel-release -y
 sudo yum install python34 -y
+sudo yum install nmap -y
 
 # Pip and python development package
 sudo yum install python34-pip -y
