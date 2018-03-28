@@ -35,11 +35,34 @@ Runtime Options
 	  -h, --help            	show this help message and exit
 
 
+Test Development
+----------------
+
+ Tests can be written and executed without making any modifications to interop.py. To utilize this pluggable 
+ functionality, simply write a test function or functions, and store it under /interop/testlib/scripts or any
+ subdirectory of the scripts directory.  Once the script is in the appropriate directory, create a Test() object  
+ (from /testlib/test.py), within your script file.  Pass your test function to the `script` argument.  Add groups 
+ and a discription as seems appropriate.  Your test should now be executable using `./interop.py -t [your_function_name]` 
+ and `interop.py -g [your_group_name]`. 
+
+
+Test Library
+------------
+There is a test library for common functionality that is helpful for writing test scripts.  It has its own `README.md` file.
+The library and its documentation can be found under interop/testlib/classes
+
+
 EXAMPLES
 --------
 
-	./interop.py -h | less
+	./interop.py -h | less		# the help page
 
-	./interop.py -pt
+	./interop.py -pt		# Will print all tests available for execution
 
-	./interop.py -t test1,test2
+	./interop.py -t test1,test2	# Will execute test1 and test2, assuming test1 and test2 exist
+
+	./interop.py -ps		# Prints the network status (SM info, interface info, etc)
+
+	./interop.py -g group1		# Executes all groups in group1
+
+	
