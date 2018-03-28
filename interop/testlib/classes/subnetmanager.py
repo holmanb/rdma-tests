@@ -45,8 +45,8 @@ class SubnetManager:
         if len(active_lines) != 1:
             raise SubnetManagerParsingError("the output of `systemctl status opensm` was parsed incorrectly")
         else:
-            return active_lines[0].strip().split()[1]
-
+            self.state = active_lines[0].strip().split()[1]
+            return self.state
 
     def print(self):
         """ Print the the subnet manager status
