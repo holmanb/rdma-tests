@@ -1,4 +1,4 @@
-import testlib.classes.test as Test
+import testlib.test as Test
 
 
 
