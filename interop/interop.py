@@ -218,6 +218,7 @@ def main():
     # Print network status
     if args.print_status:
         network.print_status()
+        exit(0)
 
     # Print groups and tests
     TESTS=dict(getTests())
