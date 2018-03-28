@@ -1,7 +1,7 @@
 /rdma-tests/interop/testlib/classes
 ===================================
 
-the *classes* subdirectory holds the network.py module, which initializes and exposes several useful interfaces
+the */classes* subdirectory holds the network.py module, which initializes and exposes several useful interfaces
 
 Dependencies
 ------------
@@ -17,7 +17,7 @@ It will likely be helpful, however, for architecture / design questions.
 
 network (module)
 -------
-** This modules represents the network, and has what one would expect a network to have: a bunch of nodes. Always import this and then use one of the nodes in the `nodes` list ** 
+**This modules represents the network, and has what one would expect a network to have: a bunch of nodes. Always import this and then use one of the nodes in the `nodes` list** 
 
 `network.nodes`			- a list of Node() objects (see below)
 
@@ -29,7 +29,7 @@ network (module)
 
 node (class)
 ----
-** Class that provides user interaction functionality with the node and it's objects: its interfaces and subnet manager. The command() method is important. **
+**Class that provides user interaction functionality with the node and it's objects: its interfaces and subnet manager. The command() method is important.**
 
 `node.ibif`				- an infiniband Interface() object (see below) 
 
@@ -41,7 +41,7 @@ node (class)
 
 interface (class)
 ---------
-** Class for interface manipulation and info storage **
+**Class for interface manipulation and info storage**
 
 `interface.ip`				- IPv4 address object (python3 built-in) - can be cast to a str()
 
@@ -57,7 +57,7 @@ interface (class)
 
 subnetmanager (class)
 -------------
-** Class for using the subnet manager **
+**Class for using the subnet manager**
 
 `subnetmanager.state`			- the last retreived state of the subnet manager - this is not guaranteed to be up-to-date
 
