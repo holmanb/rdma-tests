@@ -26,6 +26,8 @@ Runtime Options
 
 	  -d, --debug           	Allows debug statements to print
 
+	  -ps, --print_status		Prints out the status of the network
+
 	  -pt, --print_tests    	Prints tests currently available for running
 
 	  -pg, --print_groups   	Prints groups currently available for running

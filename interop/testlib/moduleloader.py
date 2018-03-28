@@ -36,7 +36,7 @@ def load_modules(file_name, PACKAGE, skip_dir=None):
         for f in directory:
 
             # Check that it's not a pycache or non-directory
-            if not f.startswith('__') and not f.endswith('.py') and not f.endswith('.csv') and not f.endswith('.log'):
+            if not f.startswith('__') and not f.endswith('.py') and not f.endswith('.csv') and not f.endswith('.log') and not f.endswith('.md'):
 
                 try:
                     modules += import_dir(path+"/"+f, load_dir(path + '/' + f))

@@ -7,26 +7,30 @@ class SubnetManagerInitializationError(Exception):
     """
     pass
 
+class SubnetManagerParsingError(Exception):
+    """ In case the subnet manager output is parsed incorrectly
+    """
+    pass
+
 class SubnetManager:
     def __init__(self, node=None):
         """ Represents the subnet manager
         """
         self.ip = node.ethif.ip
         self.node = node
-        self.last_status = None
         if not self.ip or not self.node:
-            raise SubnetManagerInitializationError("Must initialize SubnetManager object with node") 
-        self.status = self.status()
+            raise SubnetManagerInitializationError("Must initialize SubnetManager object with node")
+        self.state = self.status()
 
     def start(self):
         """ Starts the subnet manager at ip address
         """
-        pass
+        self.node.command("systemctl start opensm")
 
     def stop(self):
         """ Stop the subnet manager at ip address
         """
-        pass
+        self.node.command("systemctl stop opensm")
 
     def status(self):
         """ Status of the subnet manager at the ip address
@@ -34,13 +38,20 @@ class SubnetManager:
 
         # opensm for status
         output = self.node.command("systemctl status opensm")
-        print(output)
-        return output
+        active_lines = []
+        for line in output.split('\n'):
+            if "Active: " in line:
+                active_lines.append(line)
+        if len(active_lines) != 1:
+            raise SubnetManagerParsingError("the output of `systemctl status opensm` was parsed incorrectly")
+        else:
+            self.state = active_lines[0].strip().split()[1]
+            return self.state
 
     def print(self):
         """ Print the the subnet manager status
         """
-        print("Subnet Manager: {}".format("Untracked" if not self.status else self.status))
+        print("Subnet Manager: {}".format("Untracked" if not self.state else self.state))
 
 def validate():
     SubnetManager().print()

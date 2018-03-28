@@ -12,7 +12,6 @@ class Interface:
         self.id = header or ""
         self.hostname = hostname or ""
         self.aliases = aliases or []
-        self.available = False
         self.ip = ""
         if ip:
             try:
