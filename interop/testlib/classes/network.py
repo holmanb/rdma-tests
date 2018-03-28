@@ -24,7 +24,8 @@ nodes = []
 def print_status():
     """ Print the network status
     """
-    global nodes,self
+    global nodes,self,print_called
+    load_nodes()
     for node in nodes:
         print("--")
         node.print()
@@ -47,6 +48,7 @@ def load_nodes():
     # Assuming the following layout: 
     # IPAddress  hostname  alias1 alias2 aliasN 
     global nodes, self
+    del nodes[:]
     with open('hosts.conf') as hostfile:
         item = 0
         ib = None
@@ -96,7 +98,8 @@ def load_nodes():
 load_nodes()
 
 def validate():
-    n = print_status()
+    #n = print_status()
+    pass
 
 if __name__ == "__main__":
     validate()
