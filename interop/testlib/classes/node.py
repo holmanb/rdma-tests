@@ -3,6 +3,9 @@
 from subnetmanager import SubnetManager
 import sys
 import paramiko
+import subprocess
+import shlex
+import os
 
 class Node:
     def __init__(self, sm=None, ibif=None, ethif=None, available=None):
@@ -65,14 +68,30 @@ class Node:
         # Print subnet manager info
         self.sm.print()
 
-    def command(self, command, port='22', username='root'):
+    def command(self, command, port=22, username='root'):
         """ Executes a single command on the node and returns the output
         """
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(str(self.ethif.ip), port, username, '')
-        stdin, stdout, stderr = ssh.exec_command(cmd)
-        return "".join(stdout.readlines())
+
+        # SSH into yourself
+        if "master" in self.ethif.id.lower():
+            p = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            output = p.communicate()[0].decode('utf-8')
+            return output
+
+        # Otherwise go for it
+        else:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            privatekeyfile = os.path.expanduser('~/.ssh/id_rsa')
+            mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
+            try:
+                ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
+            except Exception as e:
+                print("ip:{} port:{} name:{} key:{}".format(self.ethif.ip,22,username,str(mykey)))
+                raise e
+            stdin, stdout, stderr = ssh.exec_command(command)
+            output = "".join(stdout.readlines())
+            return output
 
 def validate():
     n=Node()
