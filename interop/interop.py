@@ -25,7 +25,7 @@ import importlib
 import testlib
 import testlib.validate
 from testlib.moduleloader import load_modules
-
+import testlib.classes.network as network
 
 # File Locations 
 INTEROPDIR = os.path.dirname( __file__ )
@@ -187,10 +187,11 @@ def main():
     parser = argparse.ArgumentParser(description="OFA Interoperability Testing Framework", add_help=False)
     parser.add_argument("-g","--group",help="Specify comma delimited groups of tests to run")
     parser.add_argument("-t","--test",help="Specify comma delimited list of individual tests to run")
-    parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
+    parser.add_argument("-ps","--print_status",action="store_true",help="Prints the current network status based on the hosts.conf file")
     parser.add_argument("-pt","--print_tests",action="store_true" ,help="Prints tests currently available for running")
     parser.add_argument("-pg","--print_groups",action="store_true" ,help="Prints groups currently available for running")
     parser.add_argument("-v", action="store_true",help="Turns off assertion validations")
+    parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
     parser.add_argument("-h","--help", action="store_true",help="Prints out additional information")
 
     # Running parser
@@ -214,6 +215,10 @@ def main():
     if not args.v:
         logger.debug("Running unit tests...")
         testlib.validate.run_validations(__file__, 'testlib')
+
+    # Print network status
+    if args.print_status:
+        network.print_status()
 
     # Print groups and tests
     if args.print_groups and args.print_tests:

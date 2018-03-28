@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 
-from subnetmanager import SubnetManager
 import sys
 import paramiko
 import subprocess
 import shlex
 import os
+
+# User defined modules
+from testlib.classes.subnetmanager import SubnetManager
 
 class Node:
     def __init__(self, sm=None, ibif=None, ethif=None, available=None):

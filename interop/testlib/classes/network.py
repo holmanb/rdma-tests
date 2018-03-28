@@ -2,8 +2,10 @@
 
 import paramiko
 import sys
-from interface import Interface
-from node import Node
+
+# User defined modules
+from testlib.classes.interface import Interface
+from testlib.classes.node import Node
 
 class NetworkConfigParseError(Exception):
     """ Custom exception is thrown when an incorrect config file is parsed"""
@@ -45,7 +47,7 @@ def load_nodes():
     # Assuming the following layout: 
     # IPAddress  hostname  alias1 alias2 aliasN 
     global nodes, self
-    with open('../../hosts.conf') as hostfile:
+    with open('hosts.conf') as hostfile:
         item = 0
         ib = None
         eth = None
@@ -94,7 +96,6 @@ def load_nodes():
 load_nodes()
 
 def validate():
-    n = load_nodes()
     n = print_status()
 
 if __name__ == "__main__":
