@@ -75,7 +75,7 @@ EXAMPLES
 
 The following example code shows the syntax to manipulate one of the node's subnet managers
 
-	>> import interop.testlib.classes.network as network # import the network module
+	>> import testlib.classes.network as network # import the network module
 	>> mynode = network.nodes[0]		# select a node 
 	>> mynode.sm.status()			# get the status
 	'active'
@@ -89,7 +89,7 @@ The following example code shows the syntax to manipulate one of the node's subn
 
 The following example code shows the syntax to run node.command() on one of the node's subnet managers
 
-	>> import interop.testlib.classes.network as network 	# import the network module
+	>> import testlib.classes.network as network 	# import the network module
 	>> print(network.nodes[1].command('ibstat')		# executing ibstat on node[1] in the network.nodes list	
 	CA 'mlx5_0'
 		CA type: ...

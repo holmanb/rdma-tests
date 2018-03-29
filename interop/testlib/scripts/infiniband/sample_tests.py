@@ -1,5 +1,5 @@
 import testlib.test as Test
-
+import testlib.classes.network as network
 
 def sample_test1():
 
