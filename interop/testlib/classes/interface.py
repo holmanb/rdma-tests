@@ -19,7 +19,7 @@ class Interface:
             except ipaddress.AddressValueError as e:
                 print("Error parsing ip address from /etc/hosts file")
                 raise e
-        self.state = self.get_state()
+        self.state = None
 
     def print(self):
 
@@ -33,7 +33,6 @@ class Interface:
     def get_state(self):
         """ Use python-nmap to get interface state
         """
-
         # Only checking port 22, but could check others if needeed
         ip_str = str(self.ip)
         nm = nmap.PortScanner()
@@ -41,7 +40,8 @@ class Interface:
 
         # Get host state if it is reachable 
         if ip_str in nm.all_hosts():
-            return nm[ip_str].state()
+            self.state = nm[ip_str].state()
+            return self.state
 
         # Otherwise unreachable
         return "Unreachable"

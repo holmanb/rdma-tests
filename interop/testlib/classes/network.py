@@ -2,6 +2,7 @@
 
 import paramiko
 import sys
+import threading
 
 # User defined modules
 from testlib.classes.interface import Interface
@@ -92,7 +93,26 @@ def load_nodes():
                 # Once everything is defined, create and save the node
                 if id and eth and ib:
                     add_node(Node(ibif=ib, ethif=eth, available=False))
-        return self
+
+    # scan network for interface status in parrallel
+    threads = []
+    for node in nodes:
+        threads.append(threading.Thread(target=node.ethif.get_state))
+        threads.append(threading.Thread(target=node.ibif.get_state))
+
+    # start threads
+    for thread in threads:
+        thread.start()
+
+    # wait for the threads to finish getting interface status
+    for thread in threads:
+        thread.join()
+
+    # update SM status now that interfaces are updated
+    for node in nodes:
+        node.sm.status()
+
+    return self
 
 # Module is initialized
 load_nodes()

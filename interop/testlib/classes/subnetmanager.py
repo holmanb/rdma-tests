@@ -18,7 +18,6 @@ class SubnetManager:
         """
         self.ip = node.ethif.ip
         self.node = node
-        self.ip_state = node.ethif.state
         if not self.ip or not self.node:
             raise SubnetManagerInitializationError("Must initialize SubnetManager object with node")
         self.state = self.status()
@@ -26,7 +25,7 @@ class SubnetManager:
     def start(self):
         """ Starts the subnet manager at ip address
         """
-        if self.ip_state == "up":
+        if self.node.ethif.state == "up":
             self.node.command("systemctl start opensm")
             return True
         else:
@@ -35,7 +34,7 @@ class SubnetManager:
     def stop(self):
         """ Stop the subnet manager at ip address
         """
-        if self.ip_state == "up":
+        if self.node.ethif.state == "up":
             self.node.command("systemctl stop opensm")
             return True
         else:
@@ -44,8 +43,7 @@ class SubnetManager:
     def status(self):
         """ Status of the subnet manager at the ip address
         """
-
-        if self.ip_state == "up":
+        if self.node.ethif.state == "up":
             # opensm for status
             output = self.node.command("systemctl status opensm")
             active_lines = []
