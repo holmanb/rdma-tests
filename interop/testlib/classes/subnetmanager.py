@@ -18,6 +18,7 @@ class SubnetManager:
         """
         self.ip = node.ethif.ip
         self.node = node
+        self.ip_state = node.ethif.state
         if not self.ip or not self.node:
             raise SubnetManagerInitializationError("Must initialize SubnetManager object with node")
         self.state = self.status()
@@ -25,28 +26,38 @@ class SubnetManager:
     def start(self):
         """ Starts the subnet manager at ip address
         """
-        self.node.command("systemctl start opensm")
+        if self.ip_state == "up":
+            self.node.command("systemctl start opensm")
+            return True
+        else:
+            return False
 
     def stop(self):
         """ Stop the subnet manager at ip address
         """
-        self.node.command("systemctl stop opensm")
+        if self.ip_state == "up":
+            self.node.command("systemctl stop opensm")
+            return True
+        else:
+            return False
 
     def status(self):
         """ Status of the subnet manager at the ip address
         """
 
-        # opensm for status
-        output = self.node.command("systemctl status opensm")
-        active_lines = []
-        for line in output.split('\n'):
-            if "Active: " in line:
-                active_lines.append(line)
-        if len(active_lines) != 1:
-            raise SubnetManagerParsingError("the output of `systemctl status opensm` was parsed incorrectly")
-        else:
-            self.state = active_lines[0].strip().split()[1]
-            return self.state
+        if self.ip_state == "up":
+            # opensm for status
+            output = self.node.command("systemctl status opensm")
+            active_lines = []
+            for line in output.split('\n'):
+                if "Active: " in line:
+                    active_lines.append(line)
+            if len(active_lines) != 1:
+                raise SubnetManagerParsingError("the output of `systemctl status opensm` was parsed incorrectly")
+            else:
+                self.state = active_lines[0].strip().split()[1]
+                return self.state
+        return False
 
     def print(self):
         """ Print the the subnet manager status

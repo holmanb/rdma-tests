@@ -45,6 +45,7 @@ class Interface:
 
         # Otherwise unreachable
         return "Unreachable"
+
 def validate():
     Interface().print()
 
