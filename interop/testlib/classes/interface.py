@@ -28,7 +28,7 @@ class Interface:
         aliases = aliases.rjust(30-len(aliases))
         hostname = self.hostname.rjust(30-len(self.hostname))
 
-        print("\t{}\t{}{}\t{} ".format(str(self.ip),hostname, aliases,self.state))
+        print("\t{}\t{}{}\t{} ".format(str(self.ip),hostname, aliases, self.state if self.state else "down"))
 
     def get_state(self):
         """ Use python-nmap to get interface state
