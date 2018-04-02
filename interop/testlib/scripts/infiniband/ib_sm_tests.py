@@ -1,4 +1,5 @@
-import network
+import testlib.test as Test
+import testlib.classes.network as network
 
 """
 Test 1: Basic sweep test 
