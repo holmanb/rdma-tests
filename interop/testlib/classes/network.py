@@ -50,7 +50,7 @@ def load_nodes():
     # IPAddress  hostname  alias1 alias2 aliasN 
     global nodes, self
     del nodes[:]
-    with open('hosts.conf') as hostfile:
+    with open('./../../hosts.conf') as hostfile:
         item = 0
         ib = None
         eth = None
