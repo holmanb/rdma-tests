@@ -1,3 +1,8 @@
+#!/bin/bash
+if [[ $EUID -ne 0 ]]; then
+    echo "must be root"
+    exit 1
+fi
 
 # Returns -1 if not subset
 strindex() {
@@ -47,3 +52,13 @@ elif [ "$SUSE" -ne -1 ]; then
 	sudo pip3 install python-nmap
 
 fi
+
+# So users don't need to use root 
+chown root interop/interop.py
+chgrp root interop/interop.py
+chmod 4775 interop/interop.py
+
+# Add it to path
+echo "adding to PATH"
+echo 'export PATH=$PATH:$CWD/interop' >> /home/$SUDO_USER/.profile
+
