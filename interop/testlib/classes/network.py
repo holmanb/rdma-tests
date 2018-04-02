@@ -6,8 +6,22 @@ import threading
 import os
 
 # User defined modules
-from testlib.classes.interface import Interface
-from testlib.classes.node import Node
+try:
+
+    # This import path is used by interop.py (this is the default)
+    from testlib.classes.interface import Interface
+    from testlib.classes.node import Node
+except Exception as e:
+    try:
+        # This import path is attempted if the former fails
+        # It is used for developers to try network module commands using the Python3 interpreter
+        from interface import Interface
+        from node import Node
+    except Exception as e2:
+
+        # The default import path is more important
+        raise e
+
 
 class NetworkConfigParseError(Exception):
     """ Custom exception is thrown when an incorrect config file is parsed"""

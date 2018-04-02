@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# Require root
 if [[ $EUID -ne 0 ]]; then
     echo "must be root"
     exit 1
@@ -54,11 +56,23 @@ elif [ "$SUSE" -ne -1 ]; then
 fi
 
 # So users don't need to use root 
+echo
+echo "adding permissions to interop.py"
 chown root interop/interop.py
 chgrp root interop/interop.py
 chmod 4775 interop/interop.py
 
-# Add it to path
-echo "adding to PATH"
-echo 'export PATH=$PATH:$CWD/interop' >> /home/$SUDO_USER/.profile
+# Get directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Add interop.py to path
+echo
+echo "adding interop.py to PATH"
+echo "export PATH=$PATH:$DIR/interop" >> /home/$SUDO_USER/.profile
 
+# Add network module to PYTHONPATH
+echo
+echo "adding network module to PYTHONPATH"
+echo "export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes" >> /home/$SUDO_USER/.profile
+source /home/$SUDO_USER/.profile
+echo
+echo "done!"

@@ -7,7 +7,16 @@ import shlex
 import os
 
 # User defined modules
-from testlib.classes.subnetmanager import SubnetManager
+try:
+    # default import for interop.py
+    from testlib.classes.subnetmanager import SubnetManager
+except Exception as e:
+    try:
+        # this is in case developers want to import network from an interpreter 
+        from subnetmanager import SubnetManager
+    except Exception as e2:
+        raise e
+
 
 class Node:
     def __init__(self, sm=None, ibif=None, ethif=None, available=None):
