@@ -3,6 +3,7 @@
 import paramiko
 import sys
 import threading
+import os
 
 # User defined modules
 from testlib.classes.interface import Interface
@@ -50,7 +51,9 @@ def load_nodes():
     # IPAddress  hostname  alias1 alias2 aliasN 
     global nodes, self
     del nodes[:]
-    with open('./../../hosts.conf') as hostfile:
+    file_name = os.path.join(os.path.dirname(__file__),'./../../hosts.conf')
+    #with open('./../../hosts.conf') as hostfile:
+    with open(file_name) as hostfile:
         item = 0
         ib = None
         eth = None
