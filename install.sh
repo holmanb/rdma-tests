@@ -6,6 +6,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+
 # Returns -1 if not subset
 strindex() {
 	x="${1%%$2*}"
@@ -65,14 +66,27 @@ chmod 4775 interop/interop.py
 # Get directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Add interop.py to path
+PERSIST_FILE=".bashrc"
 echo
-echo "adding interop.py to PATH"
-echo "export PATH=$PATH:$DIR/interop" >> /home/$SUDO_USER/.profile
+echo "persistantly adding interop.py to PATH via ~/.bashrc"
+echo "export PATH=$PATH:$DIR/interop" >> /home/$SUDO_USER/$PERSIST_FILE
 
 # Add network module to PYTHONPATH
 echo
-echo "adding network module to PYTHONPATH"
-echo "export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes" >> /home/$SUDO_USER/.profile
-source /home/$SUDO_USER/.profile
+echo "persistantly adding network module to PYTHONPATH via ~/.bashrc"
+echo "export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes" >> /home/$SUDO_USER/$PERSIST_FILE
+
+# Make .profile have correct permissions
+chown $SUDO_USER /home/$SUDO_USER/$PERSIST_FILE
+chgrp $SUDO_USER /home/$SUDO_USER/$PERSIST_FILE
+
+# Makes current shell work 
+echo
+echo "exporting PATH and PYTHONPATH to current shell"
+export PATH=$PATH:$DIR/interop
+export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes
+
 echo
 echo "done!"
+
+
