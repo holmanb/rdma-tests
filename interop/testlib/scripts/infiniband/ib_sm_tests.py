@@ -29,7 +29,7 @@ def test1():
     node1 = network.nodes[1]
 
     #run the test with those nodes
-    test1_1(node0, node1)
+    test1_1(node1, node0)
 
 
 def test1_1(node1, node2):
