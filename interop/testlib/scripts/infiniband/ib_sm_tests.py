@@ -33,6 +33,9 @@ def test1():
 
 
 def test1_1(node1, node2):
+    output = node1.ibif.get_state()
+    print(output)
+
     # disable all SMs in the cluster then start a SM on either machine in a chosen pair.
     for node in network.nodes:
         if node.sm.status() == 'active':
