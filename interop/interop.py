@@ -164,7 +164,7 @@ def validate_args(args, dictionary, logger):
             for dict_key,value in dictionary.items():
                 logger.debug("key: {} value{}".format(dict_key,value))
             logger.error("{} is not a valid input.  Use {} -pt or {} -pg to print options".format(key,os.path.basename(__file__),os.path.basename(__file__)))
-            exit(-1)
+            return (-1)
 
     # Success
     return arg_dict
@@ -208,7 +208,7 @@ def main():
         with open(README) as file:
             for line in file:
                 print(line,end="")
-        exit(0)
+        return 0
 
     # Turns off test assertions
     if not args.v:
@@ -218,7 +218,7 @@ def main():
     # Print network status
     if args.print_status:
         network.print_status()
-        exit(0)
+        return 0
 
     # Print groups and tests
     TESTS=dict(getTests())
@@ -226,17 +226,17 @@ def main():
     if args.print_groups and args.print_tests:
         print_tests(TESTS)
         print_groups(GROUPS)
-        exit(0)
+        return 0
 
     # Print groups
     if args.print_groups:
         print_groups(GROUPS)
-        exit(0)
+        return 0
 
     # Print tests
     if args.print_tests:
         print_tests(TESTS)
-        exit(0)
+        return 0
 
 
     # Run all of the tests (expected common use case)
@@ -258,6 +258,8 @@ def main():
 
         # Validate argument
         arg_list = validate_args(args.group, GROUPS, logger)
+        if arg_list == -1:
+            return -1
 
         # Remove duplicate tests
         test_list = set()
@@ -278,8 +280,7 @@ def main():
         for test in test_list:
             logger.debug("running test: {}".format(test.get_name()))
             test.run()
-
-        exit(0)
+        return 0
 
     # Run a group of tests
     if args.group:
@@ -319,5 +320,17 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        os.system('stty sane')
+        os.system("stty erase '^H'")
+        exit()
+    except Exception as e:
+        os.system('stty sane')
+        os.system("stty erase '^H'")
+        raise e
+
+    os.system('stty sane')
+    os.system("stty erase '^H'")
+
 
