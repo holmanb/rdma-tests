@@ -45,7 +45,7 @@ def IBFabricInit():
 
             f.close()
         else:
-            print("{} is not currently active, running tests on other active nodes".format(node.ethif.id)
+            print("{} is not currently active, running tests on other active nodes".format(node.ethif.id))
 
 def sample_test1():
 
