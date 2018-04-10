@@ -19,10 +19,12 @@ except Exception as e:
 
 
 class Node:
-    def __init__(self, sm=None, ibif=None, ethif=None, available=None):
+    def __init__(self, sm=None, ibif=None, opaif=None, roceif=None, ethif=None, available=None):
         """ Represents a node"""
         self.ibif = ibif
         self.ethif = ethif
+        self.opaif = opaif
+        self.roceif = roceif
         self.sm = sm
         self._available=available
         if sm:
