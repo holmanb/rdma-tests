@@ -96,7 +96,12 @@ class Node:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             privatekeyfile = os.path.expanduser('~/.ssh/id_rsa')
-            mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
+            try:
+                mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
+            except FileNotFoundError as e:
+                print("RSA keys need to be setup")
+                raise e
+
             try:
                 ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
             except Exception as e:
