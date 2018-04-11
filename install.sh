@@ -78,7 +78,6 @@ echo "export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes" >> /home/$SUDO
 
 # Make .profile have correct permissions
 chown $SUDO_USER /home/$SUDO_USER/$PERSIST_FILE
-chgrp $SUDO_USER /home/$SUDO_USER/$PERSIST_FILE
 
 # Makes current shell work 
 echo
