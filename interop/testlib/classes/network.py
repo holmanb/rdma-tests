@@ -43,8 +43,9 @@ def print_status():
     global nodes,self,print_called
     load_nodes()
     for node in nodes:
-        print("--")
-        node.print()
+        if node.is_up():
+            print("--")
+            node.print()
     return self
 
 def add_node(node):

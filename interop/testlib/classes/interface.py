@@ -28,7 +28,7 @@ class Interface:
             except ipaddress.AddressValueError as e:
                 print("Error parsing ip address from hosts.conf file")
                 raise e
-        self.state = None
+        self.stored_state = None
 
     def print(self):
 
@@ -38,7 +38,7 @@ class Interface:
         hostname =r_pad(self.hostname,30)
         ip = str(self.ip) 
         ip = r_pad(ip,16)
-        state=self.state if self.state else "down"
+        state=self.stored_state if self.stored_state else "down"
         state = r_pad(state, 10)
         print("{} {} {} {} ".format(ip,hostname, aliases, state))
 
@@ -52,10 +52,11 @@ class Interface:
 
         # Get host state if it is reachable 
         if ip_str in nm.all_hosts():
-            self.state = nm[ip_str].state()
-            return self.state
+            self.stored_state = nm[ip_str].state()
+            return self.stored_state
 
         # Otherwise unreachable
+        self.stored_state = None
         return "Unreachable"
 
 def validate():

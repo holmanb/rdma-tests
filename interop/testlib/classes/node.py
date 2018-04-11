@@ -6,9 +6,7 @@ import subprocess
 import shlex
 import os
 
-class RSAKeySetupError(Exception):
-    pass
-# User defined modules
+# import user defined modules
 try:
     # default import for interop.py
     from testlib.classes.subnetmanager import SubnetManager
@@ -19,6 +17,8 @@ except Exception as e:
     except Exception as e2:
         raise e
 
+class RSAKeySetupError(Exception):
+    pass
 
 class Node:
     def __init__(self, sm=None, ibif=None, opaif=None, roceif=None, ethif=None, available=None):
@@ -38,7 +38,7 @@ class Node:
     def is_up(self):
         """ True if management interface is on the network
         """
-        return self.ethif.get_state() == "up"
+        return self.ethif.stored_state == "up"
 
 
     def is_down(self):
