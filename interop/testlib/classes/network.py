@@ -11,12 +11,14 @@ try:
     # This import path is used by interop.py (this is the default)
     from testlib.classes.interface import Interface
     from testlib.classes.node import Node
+    from testlib.classes.switch import Switch
 except Exception as e:
     try:
         # This import path is attempted if the former fails
         # It is used for developers to try network module commands using the Python3 interpreter
         from interface import Interface
         from node import Node
+        from switch import Switch
     except Exception as e2:
 
         # The default import path is more important
@@ -33,7 +35,7 @@ self = sys.modules[__name__]
 # Modules are only imported once then cached, so this will not be 
 # re-initiallized every time it is imported
 nodes = []
-
+switches = []
 ##
 # Provides common network management functionality
 ## 
@@ -46,6 +48,9 @@ def print_status():
 #        if node.is_up():
         print("--")
         node.print()
+    for switch in switches:
+        print("--")
+        switch.print()
     return self
 
 def add_node(node):
@@ -64,20 +69,17 @@ def load_nodes():
 
     # Assuming the following layout: 
     # IPAddress  hostname  alias1 alias2 aliasN 
-    global nodes, self
+    global nodes, self, switches
     del nodes[:]
     ib = None
     eth = None
     opa = None
     roce = None
     id = None
-    item = 0
+    switch = False
+    item = 0   # counter for identifying which interface to map to
     file_name = os.path.join(os.path.dirname(__file__),'./../../hosts.conf')
-    #with open('./../../hosts.conf') as hostfile:
     with open(file_name) as hostfile:
-        item = 0
-        ib = None
-        eth = None
         for line in hostfile:
             line = line.strip()
 
@@ -95,13 +97,18 @@ def load_nodes():
                     continue
 
                 # Each node in the config filestarts with "Node <id>"
-                if line[0].upper() == "NODE" or "SWITCH" in "".join(line).upper() :
+                if line[0].upper() == "NODE" or "MANAGED" in "".join(line).upper():
+                    if "MANAGED" in "".join(line).upper():
+                        switch = True
 
-                    # Once everything is defined, create and save the node
+                    # Once everything is defined, create and save the node or switch
                     if ib or eth or opa or roce:
-                        add_node(Node(ibif=ib, ethif=eth, opaif=opa, roceif=roce, available=False))
-
-                    id = line[1]
+                        if not switch:
+                            add_node(Node(ibif=ib, ethif=eth, opaif=opa, roceif=roce, available=False))
+                        else:
+                            switches.append(Switch(ethif=eth))
+                    switch = False
+                    id = " ".join(line)
                     ib = None
                     eth = None
                     opa = None
@@ -122,20 +129,28 @@ def load_nodes():
                     hostname = line[1]
                     aliases = line[2:]
 
-
                     # The first interface line is the ethernet
                     if item == 1:
                         eth = Interface(header=id, ip=ip, hostname=hostname, aliases=aliases)
+
                     # The second interface line is for infiniband
                     if item == 2:
                         ib = Interface(header=id, ip=ip, hostname=hostname, aliases=aliases)
+
                     # The third interface line is for opa
                     if item == 3:
                         opa = Interface(header=id, ip=ip, hostname=hostname, aliases=aliases)
+
                     # The third interface line is for roce 
                     if item == 4:
                         roce = Interface(header=id, ip=ip, hostname=hostname, aliases=aliases)
 
+    # Once everything is defined, create and save the node or switch
+    if ib or eth or opa or roce:
+        if "MANAGED" not in eth.id.upper():
+            add_node(Node(ibif=ib, ethif=eth, opaif=opa, roceif=roce, available=False))
+        else:
+            switches.append(Switch(ethif=eth))
 
     # scan network for interface status in parrallel
     threads = []
@@ -164,7 +179,7 @@ def load_nodes():
     return self
 
 # Module is initialized
-load_nodes()
+#load_nodes()
 
 def validate():
     #n = print_status()

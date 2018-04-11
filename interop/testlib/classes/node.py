@@ -29,8 +29,6 @@ class Node:
         self.roceif = roceif
         self.sm = sm
         self._available=available
-        if sm:
-            sm.setNode(self)
         if not sm and ethif:
             self.sm = SubnetManager(node=self)
 
@@ -67,7 +65,7 @@ class Node:
         """ Prints node information
         """
         if(self.ethif or self.ibif or self.opaif or self.roceif):
-            print("Node: " + self.ethif.id if self.ethif else self.ib.id)
+            print(self.ethif.id if self.ethif else self.ib.id)
             if self.ethif:
                 sys.stdout.write("Ethernet:        ")
                 self.ethif.print()

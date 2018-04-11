@@ -36,7 +36,7 @@ class Interface:
         aliases = "\t".join(self.aliases)
         aliases = r_pad(aliases,25)
         hostname =r_pad(self.hostname,30)
-        ip = str(self.ip) 
+        ip = str(self.ip)
         ip = r_pad(ip,16)
         state=self.stored_state if self.stored_state else "down"
         state = r_pad(state, 10)
