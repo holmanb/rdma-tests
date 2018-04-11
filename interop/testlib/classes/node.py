@@ -63,22 +63,26 @@ class Node:
     def print(self):
         """ Prints node information
         """
-        if(self.ethif or self.ibif):
+        if(self.ethif or self.ibif or self.opaif or self.roceif):
             print("Node: " + self.ethif.id if self.ethif else self.ib.id)
             if self.ethif:
-                sys.stdout.write("Ethernet:  ")
+                sys.stdout.write("Ethernet:        ")
                 self.ethif.print()
-            else:
-                sys.stdout.write("Ethernet: None\n")
             if self.ibif:
-                sys.stdout.write("Infiniband: ")
+                sys.stdout.write("Infiniband:      ")
                 self.ibif.print()
-            else:
-                sys.stdout.write("Infiniband: None\n")
+            if self.opaif:
+                sys.stdout.write("Omnipath:        ")
+                self.opaif.print()
+            if self.roceif:
+                sys.stdout.write("ROCE:            ")
+                self.roceif.print()
         else:
             print("NODE HAS NO INTERFACES?")
 
+
         # Print subnet manager info
+        sys.stdout.write("Subnet Manager: ")
         self.sm.print()
 
     def command(self, command, port=22, username='root'):

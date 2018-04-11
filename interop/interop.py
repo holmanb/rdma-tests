@@ -309,7 +309,7 @@ def main():
 
         # Validate argument
         arg_list = validate_args(args.test, TESTS,logger)
-        for argument in arg_list: 
+        for argument in arg_list:
             logger.debug("running test {}".format(argument))
 
             # Use argument as dictionary key and catch bad values

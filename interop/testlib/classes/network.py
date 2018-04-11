@@ -65,6 +65,12 @@ def load_nodes():
     # IPAddress  hostname  alias1 alias2 aliasN 
     global nodes, self
     del nodes[:]
+    ib = None
+    eth = None
+    opa = None
+    roce = None
+    id = None
+    item = 0
     file_name = os.path.join(os.path.dirname(__file__),'./../../hosts.conf')
     #with open('./../../hosts.conf') as hostfile:
     with open(file_name) as hostfile:
@@ -88,6 +94,11 @@ def load_nodes():
 
                 # Each node in the config filestarts with "Node <id>"
                 if line[0].upper() == "NODE" or "SWITCH" in "".join(line).upper() :
+
+                    # Once everything is defined, create and save the node
+                    if ib or eth or opa or roce:
+                        add_node(Node(ibif=ib, ethif=eth, opaif=opa, roceif=roce, available=False))
+
                     id = line[1]
                     ib = None
                     eth = None
@@ -123,9 +134,6 @@ def load_nodes():
                     if item == 4:
                         roce = Interface(header=id, ip=ip, hostname=hostname, aliases=aliases)
 
-                # Once everything is defined, create and save the node
-                if id and eth and ib:
-                    add_node(Node(ibif=ib, ethif=eth, opaif=opa, roceif=roce, available=False))
 
     # scan network for interface status in parrallel
     threads = []

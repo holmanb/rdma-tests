@@ -4,6 +4,15 @@
 import ipaddress
 import nmap
 
+def r_pad(arg, length):
+    """ not getting rjust, center, or ljust to work the way I want, so I'm rolling my own
+    """
+    if length <= len(arg):
+        return arg
+    else:
+        return arg + " " * (length - len(arg))
+
+
 class Interface:
     def __init__(self, ip=None, header=None, hostname=None, aliases=None):
         """ Represents a node's interface. Stores ipaddr, hostname, etc.
@@ -24,11 +33,14 @@ class Interface:
     def print(self):
 
         # Formating
-        aliases = " ".join(self.aliases)
-        aliases = aliases.rjust(30-len(aliases))
-        hostname = self.hostname.rjust(30-len(self.hostname))
-
-        print("\t{}\t{}{}\t{} ".format(str(self.ip),hostname, aliases, self.state if self.state else "down"))
+        aliases = "\t".join(self.aliases)
+        aliases = r_pad(aliases,25)
+        hostname =r_pad(self.hostname,30)
+        ip = str(self.ip) 
+        ip = r_pad(ip,16)
+        state=self.state if self.state else "down"
+        state = r_pad(state, 10)
+        print("{} {} {} {} ".format(ip,hostname, aliases, state))
 
     def get_state(self):
         """ Use python-nmap to get interface state
