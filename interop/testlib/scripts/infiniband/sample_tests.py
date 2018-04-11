@@ -4,7 +4,7 @@ import time
 
 def IBFabricInit():
     for node in network.nodes:
-        if node.isup():
+        if node.is_up():
             if(node.sm.status() == "inactive"):
                 node.sm.start()
             ibstat = node.command("ibstat").split("\n")

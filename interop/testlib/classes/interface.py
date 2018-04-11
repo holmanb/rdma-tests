@@ -26,7 +26,7 @@ class Interface:
             try:
                 self.ip=ipaddress.ip_address(ip)
             except ipaddress.AddressValueError as e:
-                print("Error parsing ip address from /etc/hosts file")
+                print("Error parsing ip address from hosts.conf file")
                 raise e
         self.state = None
 

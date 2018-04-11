@@ -6,6 +6,8 @@ import subprocess
 import shlex
 import os
 
+class RSAKeySetupError(Exception):
+    pass
 # User defined modules
 try:
     # default import for interop.py
@@ -33,22 +35,23 @@ class Node:
             self.sm = SubnetManager(node=self)
 
 
-    def isUp(self):
-        """ True if node is on the network
+    def is_up(self):
+        """ True if management interface is on the network
         """
-        pass
+        return self.ethif.get_state() == "up"
 
-    def isDown(self):
+
+    def is_down(self):
         """ True if node is NOT on the network
         """
-        pass
+        return not self.is_up()
 
-    def isAvailable(self):
+    def is_available(self):
         """ True if node is available for use.
         """
         return self._available
 
-    def setAvailable(self, bool):
+    def set_available(self, bool):
         """ Set availability of the node
         """
         if bool is True:
@@ -89,7 +92,7 @@ class Node:
         """ Executes a single command on the node and returns the output
         """
 
-        # SSH into yourself
+        # don't want to SSH into yourself, just use the subprocess builtin
         if "master" in self.ethif.id.lower():
             p = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             output = p.communicate()[0].decode('utf-8')
@@ -103,8 +106,7 @@ class Node:
             try:
                 mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
             except FileNotFoundError as e:
-                print("RSA keys need to be setup")
-                raise e
+                raise RSAKeySetupError("RSA keys need to be setup")
 
             try:
                 ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
