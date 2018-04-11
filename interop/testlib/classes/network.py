@@ -97,7 +97,7 @@ def load_nodes():
                     continue
 
                 # Each node in the config filestarts with "Node <id>"
-                if line[0].upper() == "NODE" or "MANAGED" in "".join(line).upper():
+                if line[0] == "Node" or "MANAGED" in "".join(line).upper():
                     if "MANAGED" in "".join(line).upper():
                         switch = True
 
@@ -123,9 +123,6 @@ def load_nodes():
                     # The interface line is like this: ip hostname alias1 alias2 aliasN
                     # Though it typically only has one alias
                     ip = line[0]
-                    if len(line) == 1:
-                        print(id)
-                        print(ip)
                     hostname = line[1]
                     aliases = line[2:]
 
