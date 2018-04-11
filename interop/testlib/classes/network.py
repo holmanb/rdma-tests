@@ -43,9 +43,9 @@ def print_status():
     global nodes,self,print_called
     load_nodes()
     for node in nodes:
-        if node.is_up():
-            print("--")
-            node.print()
+#        if node.is_up():
+        print("--")
+        node.print()
     return self
 
 def add_node(node):
@@ -91,6 +91,7 @@ def load_nodes():
 
                 # Filler line in hosts.conf
                 if line[0].strip() == "None":
+                    item+=1
                     continue
 
                 # Each node in the config filestarts with "Node <id>"
@@ -131,7 +132,7 @@ def load_nodes():
                     # The third interface line is for opa
                     if item == 3:
                         opa = Interface(header=id, ip=ip, hostname=hostname, aliases=aliases)
-                    # The third interface line is for opa
+                    # The third interface line is for roce 
                     if item == 4:
                         roce = Interface(header=id, ip=ip, hostname=hostname, aliases=aliases)
 
@@ -139,8 +140,14 @@ def load_nodes():
     # scan network for interface status in parrallel
     threads = []
     for node in nodes:
-        threads.append(threading.Thread(target=node.ethif.get_state))
-        threads.append(threading.Thread(target=node.ibif.get_state))
+        if node.ethif:
+            threads.append(threading.Thread(target=node.ethif.get_state))
+        if node.ibif:
+            threads.append(threading.Thread(target=node.ibif.get_state))
+        if node.opaif:
+            threads.append(threading.Thread(target=node.opaif.get_state))
+        if node.roceif:
+            threads.append(threading.Thread(target=node.roceif.get_state))
 
     # start threads
     for thread in threads:

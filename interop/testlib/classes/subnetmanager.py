@@ -60,7 +60,7 @@ class SubnetManager:
     def print(self):
         """ Print the the subnet manager status
         """
-        print("Untracked" if not self.state else self.state)
+        print("Untracked" if not self.stored_state else self.stored_state)
 
 def validate():
     SubnetManager().print()
