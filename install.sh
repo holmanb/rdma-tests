@@ -47,7 +47,7 @@ elif [ "$SUSE" -ne -1 ]; then
 	sudo zypper install -y nmap 
 
 	# Get non-python paramiko dependencies
-	sudo zypper -y install gcc libffi-devel openssl-devel 
+	sudo zypper install -y gcc libffi-devel openssl-devel 
 
 	# install paramiko
     sudo pip3 install --upgrade pip
@@ -78,13 +78,17 @@ echo "export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes" >> /home/$SUDO
 
 # Make .profile have correct permissions
 chown $SUDO_USER /home/$SUDO_USER/$PERSIST_FILE
-chgrp $SUDO_USER /home/$SUDO_USER/$PERSIST_FILE
 
 # Makes current shell work 
 echo
 echo "exporting PATH and PYTHONPATH to current shell"
 export PATH=$PATH:$DIR/interop
 export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes
+
+# Set up rsa_keys
+echo "setting up rsa keys"
+cp /root/.ssh/id_rsa /home/$SUDO_USER/.ssh/
+chown $SUDO_USER /home/$SUDO_USER/.ssh/id_rsa
 
 echo
 echo "done!"
