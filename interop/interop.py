@@ -321,16 +321,16 @@ def main():
 
 if __name__ == "__main__":
     try:
+        os.system('stty -g > ~/.stty')
         main()
-        os.system('stty sane')
-        os.system("stty erase '^H'")
+        os.system('stty `cat ~/.stty`')
         exit()
     except Exception as e:
-        os.system('stty sane')
-        os.system("stty erase '^H'")
+        os.system('stty `cat ~/.stty`')
         raise e
+    finally:
+        os.system('stty `cat ~/.stty`')
 
-    os.system('stty sane')
-    os.system("stty erase '^H'")
+
 
 
