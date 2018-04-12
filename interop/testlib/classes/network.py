@@ -43,7 +43,6 @@ def print_status():
     """ Print the network status
     """
     global nodes,self,print_called
-    load_nodes()
     for node in nodes:
 #        if node.is_up():
         print("--")
@@ -176,7 +175,7 @@ def load_nodes():
     return self
 
 # Module is initialized
-#load_nodes()
+load_nodes()
 
 def validate():
     #n = print_status()
