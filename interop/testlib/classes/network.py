@@ -157,17 +157,28 @@ def load_nodes():
     threads = []
     for node in nodes:
         if node.ethif:
-            threads.append(threading.Thread(target=node.ethif.get_state))
+            t = threading.Thread(target=node.ethif.get_state)
+            t.start()
+            threads.append(t)
+
         if node.ibif:
-            threads.append(threading.Thread(target=node.ibif.get_state))
+            t = threading.Thread(target=node.ibif.get_state)
+            t.start()
+            threads.append(t)
+
         if node.opaif:
-            threads.append(threading.Thread(target=node.opaif.get_state))
+            t = threading.Thread(target=node.opaif.get_state)
+            t.start()
+            threads.append(t)
+
         if node.roceif:
-            threads.append(threading.Thread(target=node.roceif.get_state))
+            t = threading.Thread(target=node.roceif.get_state)
+            t.start()
+            threads.append(t)
 
     # start threads
-    for thread in threads:
-        thread.start()
+    #for thread in threads:
+    #    thread.start()
 
     # wait for the threads to finish getting interface status
     for thread in threads:
