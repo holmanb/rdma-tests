@@ -161,22 +161,21 @@ def load_nodes():
             t.start()
             threads.append(t)
 
-         if node.ibif:
+        if node.ibif:
             t = threading.Thread(target=node.ibif.get_state)
             t.start()
             threads.append(t)
 
-"""
-        if node.opaif:
-            t = threading.Thread(target=node.opaif.get_state)
-            t.start()
-            threads.append(t)
+        # if node.opaif:
+        #     t = threading.Thread(target=node.opaif.get_state)
+        #     t.start()
+        #     threads.append(t)
 
-        if node.roceif:
-            t = threading.Thread(target=node.roceif.get_state)
-            t.start()
-            threads.append(t)
- """
+        # if node.roceif:
+        #     t = threading.Thread(target=node.roceif.get_state)
+        #     t.start()
+        #     threads.append(t)
+ 
     # start threads
     #for thread in threads:
     #    thread.start()
