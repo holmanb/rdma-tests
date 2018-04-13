@@ -43,6 +43,7 @@ def print_status():
     """ Print the network status
     """
     global nodes,self,print_called
+    parse_host()
     load_nodes()
     for node in nodes:
 #        if node.is_up():
@@ -62,7 +63,7 @@ def add_node(node):
     nodes.append(node)
     return self
 
-def load_nodes():
+def parse_host():
 
     """ Parses config file for node information
     """
@@ -149,6 +150,9 @@ def load_nodes():
         else:
             switches.append(Switch(ethif=eth))
 
+    return self
+
+def load_nodes():
     # scan network for interface status in parrallel
     threads = []
     for node in nodes:
