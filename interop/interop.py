@@ -334,22 +334,12 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-        os.system('stty `cat ~/.stty`')
-        #os.system("stty sane")
-        #os.system("stty erase '^H'")
-        #os.system("stty erase '^?'")
         exit()
     except Exception as e:
-        os.system('stty `cat ~/.stty`')
-        #os.system("stty sane")
-        #os.system("stty erase '^H'")
-        #os.system("stty erase '^?'")
         raise e
     finally:
         os.system('stty `cat ~/.stty`')
-        #os.system("stty sane")
-        #os.system("stty erase '^H'")
-        #os.system("stty erase '^?'")
+        os.system('stty echo')
 
 
 
