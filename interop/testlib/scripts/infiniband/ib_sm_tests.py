@@ -25,28 +25,28 @@ master and configures the cluster accordingly.
 
 def test1():
     #gets two nodes to send to test1_1
-    node0 = network.nodes[0]
-    node1 = network.nodes[1]
+    network.load_nodes()
+    print("load nodes complete")
+    node0 = network.nodes[1]
+    node1 = network.nodes[2]
 
     #run the test with those nodes
-    test1_1(node1, node0)
+    test1_1(node0, node1)
 
 
 def test1_1(node1, node2):
-    output = node1.ibif.get_state()
-    print(output)
-
+    print("stopping all SMs")
     # disable all SMs in the cluster then start a SM on either machine in a chosen pair.
     for node in network.nodes:
         if node.sm.status() == 'active':
             node.sm.stop()
-
+    print("starting node 1 sm")
     node1.sm.start()
     
+    print("grepping output")
     # run "saquery" on a node in the fabric
-    output = node1.command('saquery')
+    output = node1.command("saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
     ## verify that all nodes in the cluster are presetn in the output
-    output = node1.ibif.get_state()
     print(output)
 
 
