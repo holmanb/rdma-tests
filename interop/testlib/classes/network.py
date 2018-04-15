@@ -47,13 +47,7 @@ switches = [ibswitch, roceswitch]
 def print_status():
     """ Print the network status
     """
-<<<<<<< HEAD
-    global nodes,self,print_called
-    parse_host()
-    load_nodes()
-=======
     global nodes, self, ibswitch, roceswitch
->>>>>>> origin/test_common
     for node in nodes:
 #        if node.is_up():
         print("--")
@@ -73,11 +67,7 @@ def add_node(node):
     nodes.append(node)
     return self
 
-<<<<<<< HEAD
-def parse_host():
-=======
 def parse_nodes():
->>>>>>> origin/test_common
 
     """ Parses config file for node information
     """
