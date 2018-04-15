@@ -35,9 +35,11 @@ def test1():
             node1 = network.nodes[x]
             node2 = network.nodes[y]
 
-    #run the test with those nodes
-    print("running tests on nodes: ",node1," and ",node2)
-    test1_1(node1, node2)
+            #run the test with those nodes
+            print("running tests on nodes: ",node1," and ",node2)
+            test1_1(node1, node2)
+
+    
 
 
 def test1_1(node1, node2):
