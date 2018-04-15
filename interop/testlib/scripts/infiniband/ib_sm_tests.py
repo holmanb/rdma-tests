@@ -53,9 +53,12 @@ def test1_1(node1, node2):
     
     print("grepping output")
     # run "saquery" on a node in the fabric
-    output = node1.command("saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
+    #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
+    output = node1.command("sudo saquery")
     ## verify that all nodes in the cluster are presetn in the output
-    print(output)
+    for line in output:
+        if "NodeDescription" in line:
+            print(line)
 
 
     # using the ibdiagnet tool with the -r option, verify that the running SM is the master
