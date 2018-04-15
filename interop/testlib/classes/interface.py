@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-
 import ipaddress
 import nmap
+import os
 
 def r_pad(arg, length):
     """ not getting rjust, center, or ljust to work the way I want, so I'm rolling my own
@@ -43,21 +43,29 @@ class Interface:
         print("{} {} {} {} ".format(ip,hostname, aliases, state))
 
     def get_state(self):
-        """ Use python-nmap to get interface state
-        """
-        # Only checking port 22, but could check others if needeed
         ip_str = str(self.ip)
-        nm = nmap.PortScanner()
-        nm.scan(ip_str, '22')
-
-        # Get host state if it is reachable 
-        if ip_str in nm.all_hosts():
-            self.stored_state = nm[ip_str].state()
+        if os.system("ping -c1 -w2 " + ip_str + " &> /dev/null")==0:
+            self.stored_state = 'up'
+            return self.stored_state
+        else:
+            self.stored_state = 'down'
             return self.stored_state
 
-        # Otherwise unreachable
-        self.stored_state = None
-        return "Unreachable"
+def nmap_get_state():
+    """ Use python-nmap to get interface state """
+    # Only checking port 22, but could check others if needeed
+    ip_str = str(self.ip)
+    nm = nmap.PortScanner()
+    nm.scan(ip_str, arguments='-sn')
+    # Get host state if it is reachable 
+    if ip_str in nm.all_hosts():
+        self.stored_state = nm[ip_str].state()
+        return self.stored_state
+
+    # Otherwise unreachable
+    self.stored_state = None
+
+    return "Unreachable"
 
 def validate():
     Interface().print()

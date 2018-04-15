@@ -51,10 +51,13 @@ class SubnetManager:
                 if "Active: " in line:
                     active_lines.append(line)
             if len(active_lines) != 1:
-                raise SubnetManagerParsingError("the output of `systemctl status opensm` was parsed incorrectly")
+                if not active_lines:
+                    self.stored_state = 'inactive'
+                else:
+                    raise SubnetManagerParsingError("the output of `systemctl status opensm` was parsed incorrectly on {}".format(self.node.ethif.id))
             else:
-                self.state = active_lines[0].strip().split()[1]
-                return self.state
+                self.stored_state = active_lines[0].strip().split()[1]
+            return self.stored_state
         return False
 
     def print(self):
