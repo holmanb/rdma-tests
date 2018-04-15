@@ -265,6 +265,7 @@ def parse_nodes_new():
 
 
 def load_nodes():
+
     #parse_nodes() # leaving this function in case it is ever needed again
     parse_nodes_new()
     global nodes,self
@@ -296,7 +297,13 @@ def load_nodes():
     return self
 
 # Module is initialized
-load_nodes()
+try:
+    os.system('stty -g > ~/.stty')
+    load_nodes()
+finally:
+    os.system('stty `cat ~/.stty`')
+    os.system('stty echo')
+
 
 def validate():
     #n = print_status()
