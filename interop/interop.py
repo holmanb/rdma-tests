@@ -28,6 +28,11 @@ from testlib.moduleloader import load_modules
 import testlib.classes.network as network
 import testlib.test
 
+
+# Save tty settings
+os.system('stty -g > ~/.stty')
+
+
 # File Locations 
 INTEROPDIR = os.path.dirname( __file__ )
 LOGPATH = INTEROPDIR +  "/logs"
@@ -244,8 +249,15 @@ def main():
         logger.debug("Running all of the tests")
 
         # Iterate through and run tests
+        iter = 0
         for key, test in TESTS.items():
-            test.run()
+            iter += 1
+            message = "Running:\t[{}]".format(key)
+            print(message + ("-" * (100 - len(message) - len(str(iter))) + str(iter) +"/" + str(len(TESTS.items()))))
+            try:
+                test.run()
+            except Exception as e:
+                print(e)
             with open(OUTPUT, 'a+') as f:
                 w = csv.DictWriter(f, test._outputDict.keys())
                 w.writeheader()
@@ -321,15 +333,13 @@ def main():
 
 if __name__ == "__main__":
     try:
-        os.system('stty -g > ~/.stty')
         main()
-        os.system('stty `cat ~/.stty`')
         exit()
     except Exception as e:
-        os.system('stty `cat ~/.stty`')
         raise e
     finally:
         os.system('stty `cat ~/.stty`')
+        os.system('stty echo')
 
 
 
