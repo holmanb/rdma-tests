@@ -232,7 +232,7 @@ def parse_nodes_new():
                     roceswitch = Switch(ethif=interface)
 
                 elif config['infinibandswitch'] in line:
-                    ibswitch=Switch(ethif=interface)
+                    ibswitch = Switch(ethif=interface)
 
                 # Need to identify which node to add to
                 elif config['omnipath'] in line:
@@ -268,10 +268,12 @@ def load_nodes():
 
     #parse_nodes() # leaving this function in case it is ever needed again
     parse_nodes_new()
-    global nodes,self
+    global nodes, ibswitch, roceswitch, self
 
     # scan network for interface status in parrallel
     threads = []
+
+    # Get node info
     for node in nodes:
         if node.ethif:
             threads.append(threading.Thread(target=node.ethif.get_state))
@@ -281,6 +283,12 @@ def load_nodes():
             threads.append(threading.Thread(target=node.opaif.get_state))
         if node.roceif:
             threads.append(threading.Thread(target=node.roceif.get_state))
+
+    # Get switch info
+    if ibswitch.ethif:
+        threads.append(threading.Thread(target=ibswitch.ethif.get_state))
+    if roceswitch.ethif:
+        threads.append(threading.Thread(target=roceswitch.ethif.get_state))
 
     # start threads
     for thread in threads:
