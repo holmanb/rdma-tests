@@ -57,9 +57,9 @@ def test1_1(node1, node2):
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
     output = node1.command("saquery")
     ## verify that all nodes in the cluster are presetn in the output
-    matchObj = re.search( r".*NodeDescription.*\.\.\.(.*) .*", output)
+    matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output)
     if matchObj:
-        print(matchObj.group(1))
+        print(matchObj)
 
 
     # using the ibdiagnet tool with the -r option, verify that the running SM is the master
