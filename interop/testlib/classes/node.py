@@ -29,9 +29,27 @@ class Node:
         self.roceif = roceif
         self.sm = sm
         self._available=available
-        if not sm and ethif:
+        if not sm:
             self.sm = SubnetManager(node=self)
 
+    def set_interface(self, ibif=None, opaif=None,roceif=None, ethif=None):
+
+        if ibif:
+            if(self.ibif):
+               sys.stderr.write("Reassigning ibif interface {} to {}\n".format(self.ibif.id, ibif.id))
+            self.ibif = ibif
+        if ethif:
+            if(self.ethif):
+               sys.stderr.write("Reassigning ethif interface {} to {}\n".format(self.ethif.id, ethif.id))
+            self.ethif = ethif
+        if opaif:
+            if(self.opaif):
+               sys.stderr.write("Reassigning opa interface {} to {}\n".format(self.opaif.id, opaif.id))
+            self.opaif = opaif
+        if roceif:
+            if(self.roceif):
+               sys.stderr.write("Reassigning roce interface {} to {}\n".format(self.roceif.id, roceif.id))
+            self.roceif = roceif
 
     def is_up(self):
         """ True if management interface is on the network
@@ -65,6 +83,7 @@ class Node:
         """ Prints node information
         """
         if(self.ethif or self.ibif or self.opaif or self.roceif):
+            sys.stdout.write("Name:            ")
             print(self.ethif.id if self.ethif else self.ib.id)
             if self.ethif:
                 sys.stdout.write("Ethernet:        ")
@@ -91,6 +110,7 @@ class Node:
         """
 
         # don't want to SSH into yourself, just use the subprocess builtin
+        #print(str(self.ethif.id))
         if "master" in self.ethif.id.lower():
             p = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             output = p.communicate()[0].decode('utf-8')

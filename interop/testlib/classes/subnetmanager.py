@@ -16,11 +16,10 @@ class SubnetManager:
     def __init__(self, node=None):
         """ Represents the subnet manager
         """
-        self.ip = node.ethif.ip
         self.node = node
-        if not self.ip or not self.node:
+        if not self.node:
             raise SubnetManagerInitializationError("Must initialize SubnetManager object with node")
-        self.stored_state = self.status()
+        self.stored_state = None
 
     def start(self):
         """ Starts the subnet manager at ip address
@@ -43,6 +42,7 @@ class SubnetManager:
     def status(self):
         """ Status of the subnet manager at the ip address
         """
+        self.ip = self.node.ethif.ip
         if self.node.is_up():
             # opensm for status
             output = self.node.command("systemctl status opensm")
