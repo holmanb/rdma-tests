@@ -26,12 +26,18 @@ master and configures the cluster accordingly.
 def test1():
     #gets two nodes to send to test1_1
     network.load_nodes()
-    print("load nodes complete")
-    node0 = network.nodes[1]
-    node1 = network.nodes[2]
+
+    for x in range(0, len(network.nodes)):
+        for y in range(0, len(network.nodes)):
+            #if the nodes are identical, skip this iteration
+            if y == x:
+                continue
+            node1 = network.nodes[x]
+            node2 = network.nodes[y]
 
     #run the test with those nodes
-    test1_1(node0, node1)
+    print("running tests on nodes: ",node1," and ",node2)
+    test1_1(node1, node2)
 
 
 def test1_1(node1, node2):
