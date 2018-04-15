@@ -36,7 +36,7 @@ def test1():
             node2 = network.nodes[y]
 
             #run the test with those nodes
-            print("running tests on nodes: ",node1," and ",node2)
+            print("running tests on nodes: ",node1.ethif.aliases[0]," and ",node2.ethif.aliases[0])
             test1_1(node1, node2)
 
     
@@ -48,7 +48,7 @@ def test1_1(node1, node2):
     for node in network.nodes:
         if node.sm.status() == 'active':
             node.sm.stop()
-    print("starting node 1 sm")
+    print("starting", node1.ethif.aliases[0], " sm")
     node1.sm.start()
     
     print("grepping output")
