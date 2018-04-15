@@ -1,5 +1,6 @@
 import testlib.test as Test
 import testlib.classes.network as network
+import re
 
 """
 Test 1: Basic sweep test 
@@ -56,9 +57,9 @@ def test1_1(node1, node2):
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
     output = node1.command("sudo saquery")
     ## verify that all nodes in the cluster are presetn in the output
-    for line in output:
-        if "NodeDescription" in line:
-            print(line)
+    matchObj = re.match( r'NodeDescription.*\.\.\.(.*) .*', output, re.M|re.I)
+    if matchObj:
+        print(matchObj.group(1))
 
 
     # using the ibdiagnet tool with the -r option, verify that the running SM is the master
