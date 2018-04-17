@@ -56,8 +56,9 @@ def test1_1(node1, node2):
     # run "saquery" on a node in the fabric
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
     output = node1.command("sudo saquery -t 500")
-    print(output)
     ## verify that all nodes in the cluster are presetn in the output
+
+    # was not getting output consistently from saquery so checking again
     if not output:
         print("output was empty trying again")
         output = node1.command("sudo saquery -t 500")
