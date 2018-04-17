@@ -52,10 +52,10 @@ def test1_1(node1, node2):
     print("starting", node1.ethif.aliases[0], " sm")
     node1.sm.start()
     
-    print("grepping output")
+    print("parsing output")
     # run "saquery" on a node in the fabric
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
-    output = node1.command("sudo saquery")
+    output = node1.command("sudo saquery -t 500")
     #print(output)
     ## verify that all nodes in the cluster are presetn in the output
     matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output)
