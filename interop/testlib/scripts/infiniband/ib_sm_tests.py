@@ -59,9 +59,12 @@ def test1_1(node1, node2):
     ## verify that all nodes in the cluster are presetn in the output
 
     # was not getting output consistently from saquery so checking again
-    if not output:
-        print("output was empty trying again")
+    counter = 0
+    while not output or counter < 5:
+        print("output was empty trying again: ", counter)
         output = node1.command("sudo saquery -t 500")
+        counter += 1
+
     matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output)
     if matchObj:
         print(matchObj)
