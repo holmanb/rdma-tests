@@ -60,7 +60,7 @@ def test1_1(node1, node2):
 
     # was not getting output consistently from saquery so checking again
     counter = 0
-    while not output or counter < 5:
+    while not output and counter < 10:
         print("output was empty trying again: ", counter)
         output = node1.command("sudo saquery -t 500")
         counter += 1
