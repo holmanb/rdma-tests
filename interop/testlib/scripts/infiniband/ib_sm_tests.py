@@ -56,7 +56,7 @@ def test1_1(node1, node2):
     # run "saquery" on a node in the fabric
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
     output = node1.command("sudo saquery")
-    print(output)
+    #print(output)
     ## verify that all nodes in the cluster are presetn in the output
     matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output)
     if matchObj:
@@ -65,6 +65,8 @@ def test1_1(node1, node2):
         if(node.ibif):
             print(node.ibif.aliases)
             print()
+
+    del output
 
 
     # using the ibdiagnet tool with the -r option, verify that the running SM is the master
