@@ -61,7 +61,7 @@ def test1_1(node1, node2):
     if matchObj:
         print(matchObj)
     for node in network.nodes:
-        if(node.ibif.aliases):
+        if(node.ibif):
             print(node.ibif.aliases)
             print()
 
