@@ -276,9 +276,13 @@ def load_nodes():
     # Get node info
     for node in nodes:
         if node.ethif:
-            t = threading.Thread(target=node.ethif.get_state)
-            t.start()
-            threads.append(t)
+            threads.append(threading.Thread(target=node.ethif.get_state))
+        if node.ibif:
+            threads.append(threading.Thread(target=node.ibif.get_state))
+        if node.opaif:
+            threads.append(threading.Thread(target=node.opaif.get_state))
+        if node.roceif:
+            threads.append(threading.Thread(target=node.roceif.get_state))
 
     # Get switch info
     if ibswitch.ethif:
@@ -287,8 +291,8 @@ def load_nodes():
         threads.append(threading.Thread(target=roceswitch.ethif.get_state))
 
     # start threads
-    #for thread in threads:
-    #    thread.start()
+    for thread in threads:
+        thread.start()
 
     # wait for the threads to finish getting interface status
     for thread in threads:
@@ -315,4 +319,3 @@ def validate():
 
 if __name__ == "__main__":
     validate()
-

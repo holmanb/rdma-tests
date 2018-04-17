@@ -108,22 +108,32 @@ class Node:
     def command(self, command, port=22, username='root'):
         """ Executes a single command on the node and returns the output
         """
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        privatekeyfile = os.path.expanduser('~/.ssh/id_rsa')
-        try:
-            mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
-        except FileNotFoundError as e:
-            raise RSAKeySetupError("RSA keys need to be setup")
 
-        try:
-            ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
-        except Exception as e:
-            print("ip:{} port:{} name:{} key:{}".format(self.ethif.ip,22,username,str(mykey)))
-            raise e
-        stdin, stdout, stderr = ssh.exec_command(command)
-        output = "".join(stdout.readlines())
-        return output
+        # don't want to SSH into yourself, just use the subprocess builtin
+        #print(str(self.ethif.id))
+        if "master" in self.ethif.id.lower():
+            p = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            output = p.communicate()[0].decode('utf-8')
+            return output
+
+        # Otherwise go for it
+        else:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            privatekeyfile = os.path.expanduser('~/.ssh/id_rsa')
+            try:
+                mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
+            except FileNotFoundError as e:
+                raise RSAKeySetupError("RSA keys need to be setup")
+
+            try:
+                ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
+            except Exception as e:
+                print("ip:{} port:{} name:{} key:{}".format(self.ethif.ip,22,username,str(mykey)))
+                raise e
+            stdin, stdout, stderr = ssh.exec_command(command)
+            output = "".join(stdout.readlines())
+            return output
 
 def validate():
     n=Node()
