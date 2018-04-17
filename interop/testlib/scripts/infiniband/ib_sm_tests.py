@@ -60,6 +60,9 @@ def test1_1(node1, node2):
     matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output)
     if matchObj:
         print(matchObj)
+    for node in network.nodes:
+        print(node.ibif.aliases)
+        print()
 
 
     # using the ibdiagnet tool with the -r option, verify that the running SM is the master
