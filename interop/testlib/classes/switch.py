@@ -1,4 +1,12 @@
-from node import Node
+try:
+    from testlib.classes.node import Node
+except Exception as e:
+    try:
+        # This import path is attempted if the former fails
+        # It is used for developers to try network module commands using the Python3 interpreter
+        from node import Node
+    except Exception as e2:
+        raise e
 
 import sys
 

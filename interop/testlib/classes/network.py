@@ -232,7 +232,7 @@ def parse_nodes_new():
                     roceswitch = Switch(ethif=interface)
 
                 elif config['infinibandswitch'] in line:
-                    ibswitch=Switch(ethif=interface)
+                    ibswitch = Switch(ethif=interface)
 
                 # Need to identify which node to add to
                 elif config['omnipath'] in line:
@@ -265,33 +265,27 @@ def parse_nodes_new():
 
 
 def load_nodes():
+
     #parse_nodes() # leaving this function in case it is ever needed again
     parse_nodes_new()
-    global nodes,self
+    global nodes, ibswitch, roceswitch, self
 
     # scan network for interface status in parrallel
     threads = []
+
+    # Get node info
     for node in nodes:
         if node.ethif:
             t = threading.Thread(target=node.ethif.get_state)
             t.start()
             threads.append(t)
 
-        if node.ibif:
-            t = threading.Thread(target=node.ibif.get_state)
-            t.start()
-            threads.append(t)
+    # Get switch info
+    if ibswitch.ethif:
+        threads.append(threading.Thread(target=ibswitch.ethif.get_state))
+    if roceswitch.ethif:
+        threads.append(threading.Thread(target=roceswitch.ethif.get_state))
 
-        # if node.opaif:
-        #     t = threading.Thread(target=node.opaif.get_state)
-        #     t.start()
-        #     threads.append(t)
-
-        # if node.roceif:
-        #     t = threading.Thread(target=node.roceif.get_state)
-        #     t.start()
-        #     threads.append(t)
- 
     # start threads
     #for thread in threads:
     #    thread.start()
@@ -307,7 +301,13 @@ def load_nodes():
     return self
 
 # Module is initialized
-load_nodes()
+try:
+    os.system('stty -g > ~/.stty')
+    load_nodes()
+finally:
+    os.system('stty `cat ~/.stty`')
+    os.system('stty echo')
+
 
 def validate():
     #n = print_status()
