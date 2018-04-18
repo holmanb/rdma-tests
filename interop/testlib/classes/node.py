@@ -21,7 +21,7 @@ class RSAKeySetupError(Exception):
     pass
 
 class Node:
-    def __init__(self, sm=None, ibif=None, opaif=None, roceif=None, ethif=None, available=None):
+    def __init__(self, sm=None, ibif=None, opaif=None, roceif=None, ethif=None, available=None, username=None):
         """ Represents a node"""
         self.ibif = ibif
         self.ethif = ethif
@@ -133,7 +133,9 @@ class Node:
                 raise e
             stdin, stdout, stderr = ssh.exec_command(command)
             output = "".join(stdout.readlines())
-            return output
+            stderr_output = "".join(stdout.readlines()) 
+            return (output, stderr_output)
+
 
 def validate():
     n=Node()
@@ -142,6 +144,7 @@ def validate():
     n.isAvailable()
     n.setAvailable(True)
     print(n.command("whoami"))
+
 
 if __name__ == "__main__":
     validate()

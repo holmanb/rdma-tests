@@ -25,7 +25,9 @@ class SubnetManager:
         """ Starts the subnet manager at ip address
         """
         if self.node.is_up():
-            self.node.command("systemctl start opensm")
+            output = self.node.command("systemctl start opensm")
+            if output[1].strip():
+                print(output[1])
             return True
         else:
             return False
@@ -34,7 +36,9 @@ class SubnetManager:
         """ Stop the subnet manager at ip address
         """
         if self.node.is_up():
-            self.node.command("systemctl stop opensm")
+            output= self.node.command("systemctl stop opensm")
+            if output[1].strip():
+                print(output[1])
             return True
         else:
             return False
@@ -46,8 +50,11 @@ class SubnetManager:
         if self.node.is_up():
             # opensm for status
             output = self.node.command("systemctl status opensm")
+
+            if output[1].strip():
+                print(output[1])
             active_lines = []
-            for line in output.split('\n'):
+            for line in output[0].split('\n'):
                 if "Active: " in line:
                     active_lines.append(line)
             if len(active_lines) != 1:
