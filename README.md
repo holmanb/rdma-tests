@@ -32,6 +32,10 @@ Runtime Options
 
 	  -pg, --print_groups   	Prints groups currently available for running
 
+	  -v      		        Toggles validation tests 	
+
+	  -V,  --verbose		Prints test output
+
 	  -h, --help            	show this help message and exit
 
 

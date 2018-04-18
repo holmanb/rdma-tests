@@ -14,6 +14,7 @@ import argparse
 import logging
 import os
 import re
+import sys
 import csv
 import pkgutil
 import importlib
@@ -27,6 +28,11 @@ import testlib.validate
 from testlib.moduleloader import load_modules
 import testlib.classes.network as network
 import testlib.test
+
+
+# Save tty settings
+os.system('stty -g > ~/.stty')
+
 
 # File Locations 
 INTEROPDIR = os.path.dirname( __file__ )
@@ -164,17 +170,49 @@ def validate_args(args, dictionary, logger):
             for dict_key,value in dictionary.items():
                 logger.debug("key: {} value{}".format(dict_key,value))
             logger.error("{} is not a valid input.  Use {} -pt or {} -pg to print options".format(key,os.path.basename(__file__),os.path.basename(__file__)))
-            exit(-1)
+            return (-1)
 
     # Success
     return arg_dict
 
+def print_running(name, iter, total):
+    """ Print the running line
+    """
+    message = "Running:\t[{}]".format(name)
+    print(message + ("-" * (100 - len(message) - len(str(iter))) + str(iter) +"/" + str(total)))
+
+def run_tests(tests, verbose):
+    """ Handles running tests and verbosity
+    """
+    iter = 0
+    total = len(tests.items())
+    for key, test in tests.items():
+        iter += 1
+        print_running(key, iter, total)
+        try:
+            if not verbose:
+                old_stdout = sys.stdout
+                with open('/dev/null', 'w') as f:
+                    sys.stdout = f
+                    results = test.run()
+            else:
+                test.run()
+        except Exception as e:
+            if not verbose:
+                sys.stdout = old_stdout
+            print(e)
+        finally:
+            if not verbose:
+                sys.stdout = old_stdout
+        with open(OUTPUT, 'a+') as f:
+            # Use the 'results' variable to print out the pass/fail and comments 
+            w = csv.DictWriter(f, test._outputDict.keys())
+            w.writeheader()
+            w.writerow(test._outputDict)
 
 def main():
     """ Test bench
     """
-
-
 
     ##
     # Creating argument parser
@@ -187,6 +225,7 @@ def main():
     parser.add_argument("-pg","--print_groups",action="store_true" ,help="Prints groups currently available for running")
     parser.add_argument("-v", action="store_true",help="Turns off assertion validations")
     parser.add_argument("-d","--debug",action="store_true" ,help="Allows debug statements to print")
+    parser.add_argument("-V","--verbose", action="store_true",help="Verbose: shows the output from test scripts in stdout")
     parser.add_argument("-h","--help", action="store_true",help="Prints out additional information")
 
     ##
@@ -208,7 +247,7 @@ def main():
         with open(README) as file:
             for line in file:
                 print(line,end="")
-        exit(0)
+        return 0
 
     # Turns off test assertions
     if not args.v:
@@ -218,7 +257,7 @@ def main():
     # Print network status
     if args.print_status:
         network.print_status()
-        exit(0)
+        return 0
 
     # Print groups and tests
     TESTS=dict(getTests())
@@ -226,17 +265,17 @@ def main():
     if args.print_groups and args.print_tests:
         print_tests(TESTS)
         print_groups(GROUPS)
-        exit(0)
+        return 0
 
     # Print groups
     if args.print_groups:
         print_groups(GROUPS)
-        exit(0)
+        return 0
 
     # Print tests
     if args.print_tests:
         print_tests(TESTS)
-        exit(0)
+        return 0
 
 
     # Run all of the tests (expected common use case)
@@ -244,80 +283,92 @@ def main():
         logger.debug("Running all of the tests")
 
         # Iterate through and run tests
-        for key, test in TESTS.items():
-            test.run()
-            with open(OUTPUT, 'a+') as f:
-                w = csv.DictWriter(f, test._outputDict.keys())
-                w.writeheader()
-                w.writerow(test._outputDict)
+        run_tests(TESTS,args.verbose)
 
     # Run a combination of groups and tests
     if args.group and args.test:
 
         logger.debug("Running tests in groups: {}".format(args.group))
 
-        # Validate argument
-        arg_list = validate_args(args.group, GROUPS, logger)
+        # Validate argument and get list (if comma delimited list is given)
+        group_arg_list = validate_args(args.group, GROUPS, logger)
+        if group_arg_list == -1:
+            return -1
 
-        # Remove duplicate tests
-        test_list = set()
-        for argument in arg_list:
+        # Validate argument and get list (if comma delimited list is given)
+        test_arg_list = validate_args(args.test, TESTS, logger)
+        if test_arg_list == -1:
+            return -1
 
-            # GROUPS[argument] returns a list of all the group' tests within it
+        # Remove duplicate tests from grouplist
+        test_dict = {}
+
+        for argument in group_arg_list:
+
             # run each test within that group
-            test_list |= set([test[0] for test in GROUPS[argument]])
+            for test in GROUPS[argument]:
+                if test[0] not in test_dict.items():
+                    test_dict[test[1]] = test[0]
 
-        # Validate argument
-        arg_list = validate_args(args.test, TESTS, logger)
-        individual_tests = []
+        # Remove duplicate tests from testlist
+        for argument in test_arg_list:
+            # print the output for each test
+            if TESTS[argument] not in test_dict.items():
+                test_dict[argument] =  TESTS[argument]
 
-        # Use argument as dictionary key and eliminate duplicates use set() 
-        test_list |= set([TESTS[argument] for argument in arg_list])
+        # Run tests
+        run_tests(test_dict,args.verbose)
 
-        # Run all tests
-        for test in test_list:
-            logger.debug("running test: {}".format(test.get_name()))
-            test.run()
-
-        exit(0)
+        return 0
 
     # Run a group of tests
     if args.group:
-        logger.debug("Running tests in groups: {}".format(args.group))
 
-        # Validate argument
+        # Validate argument and get list (if comma delimited list is given)
         arg_list = validate_args(args.group, GROUPS, logger)
 
         # Remove duplicate tests
-        test_list = set()
+        test_dict = {}
         for argument in arg_list:
 
-            # GROUPS[argument] returns a list of all the tests within it
-            # run each test within that group
-            test_list |= set([test for test in GROUPS[argument]])
+            # GROUPS[argument] returns a list of all the tests within the group 
+            for test in GROUPS[argument]:
+                if test[0] not in test_dict.items():
+                    test_dict[test[1]] = test[0]
 
-        # Run all tests
-        for test in test_list:
-            logger.debug("running test: {}".format(test.get_name()))
-            test.run()
+        # Run tests 
+        run_tests(test_dict,args.verbose)
 
     # Run a list of tests by name
     if args.test:
 
         logger.debug("Running tests: {}".format(args.test))
 
-        # Validate argument
+        # Validate argument and get list (if comma delimited list is given)
         arg_list = validate_args(args.test, TESTS,logger)
-        for argument in arg_list: 
-            logger.debug("running test {}".format(argument))
 
-            # Use argument as dictionary key and catch bad values
-            TESTS[argument].run()
+        # Create the list of tests
+        tests = {}
+        for argument in arg_list:
+            tests[argument] = TESTS[argument]
 
-    #logger.error("sample error message")
+        # Run the tests
+        run_tests(tests,args.verbose)
     logger.debug("sample debug message")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        exit()
+    except Exception as e:
+        raise e
+    finally:
+        os.system('stty `cat ~/.stty`')
+        os.system('stty echo')
+
+
+
+
+
 

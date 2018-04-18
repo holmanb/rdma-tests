@@ -6,7 +6,7 @@ import subprocess
 import shlex
 import os
 
-# User defined modules
+# import user defined modules
 try:
     # default import for interop.py
     from testlib.classes.subnetmanager import SubnetManager
@@ -17,36 +17,57 @@ except Exception as e:
     except Exception as e2:
         raise e
 
+class RSAKeySetupError(Exception):
+    pass
 
 class Node:
-    def __init__(self, sm=None, ibif=None, ethif=None, available=None):
+    def __init__(self, sm=None, ibif=None, opaif=None, roceif=None, ethif=None, available=None, username=None):
         """ Represents a node"""
         self.ibif = ibif
         self.ethif = ethif
+        self.opaif = opaif
+        self.roceif = roceif
         self.sm = sm
         self._available=available
-        if sm:
-            sm.setNode(self)
-        if not sm and ethif:
+        if not sm:
             self.sm = SubnetManager(node=self)
 
+    def set_interface(self, ibif=None, opaif=None,roceif=None, ethif=None):
 
-    def isUp(self):
-        """ True if node is on the network
+        if ibif:
+            if(self.ibif):
+               sys.stderr.write("Reassigning ibif interface {} to {}\n".format(self.ibif.id, ibif.id))
+            self.ibif = ibif
+        if ethif:
+            if(self.ethif):
+               sys.stderr.write("Reassigning ethif interface {} to {}\n".format(self.ethif.id, ethif.id))
+            self.ethif = ethif
+        if opaif:
+            if(self.opaif):
+               sys.stderr.write("Reassigning opa interface {} to {}\n".format(self.opaif.id, opaif.id))
+            self.opaif = opaif
+        if roceif:
+            if(self.roceif):
+               sys.stderr.write("Reassigning roce interface {} to {}\n".format(self.roceif.id, roceif.id))
+            self.roceif = roceif
+
+    def is_up(self):
+        """ True if management interface is on the network
         """
-        pass
+        return self.ethif.stored_state == "up"
 
-    def isDown(self):
+
+    def is_down(self):
         """ True if node is NOT on the network
         """
-        pass
+        return not self.is_up()
 
-    def isAvailable(self):
+    def is_available(self):
         """ True if node is available for use.
         """
         return self._available
 
-    def setAvailable(self, bool):
+    def set_available(self, bool):
         """ Set availability of the node
         """
         if bool is True:
@@ -61,29 +82,35 @@ class Node:
     def print(self):
         """ Prints node information
         """
-        if(self.ethif or self.ibif):
-            print("Node: " + self.ethif.id if self.ethif else self.ib.id)
+        if(self.ethif or self.ibif or self.opaif or self.roceif):
+            sys.stdout.write("Name:            ")
+            print(self.ethif.id if self.ethif else self.ib.id)
             if self.ethif:
-                sys.stdout.write("Ethernet:  ")
+                sys.stdout.write("Ethernet:        ")
                 self.ethif.print()
-            else:
-                sys.stdout.write("Ethernet: None\n")
             if self.ibif:
-                sys.stdout.write("Infiniband: ")
+                sys.stdout.write("Infiniband:      ")
                 self.ibif.print()
-            else:
-                sys.stdout.write("Infiniband: None\n")
+            if self.opaif:
+                sys.stdout.write("Omnipath:        ")
+                self.opaif.print()
+            if self.roceif:
+                sys.stdout.write("ROCE:            ")
+                self.roceif.print()
         else:
             print("NODE HAS NO INTERFACES?")
 
+
         # Print subnet manager info
+        sys.stdout.write("Subnet Manager: ")
         self.sm.print()
 
     def command(self, command, port=22, username='root'):
         """ Executes a single command on the node and returns the output
         """
 
-        # SSH into yourself
+        # don't want to SSH into yourself, just use the subprocess builtin
+        #print(str(self.ethif.id))
         if "master" in self.ethif.id.lower():
             p = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             output = p.communicate()[0].decode('utf-8')
@@ -94,7 +121,11 @@ class Node:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             privatekeyfile = os.path.expanduser('~/.ssh/id_rsa')
-            mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
+            try:
+                mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
+            except FileNotFoundError as e:
+                raise RSAKeySetupError("RSA keys need to be setup")
+
             try:
                 ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
             except Exception as e:
@@ -102,7 +133,9 @@ class Node:
                 raise e
             stdin, stdout, stderr = ssh.exec_command(command)
             output = "".join(stdout.readlines())
-            return output
+            stderr_output = "".join(stdout.readlines()) 
+            return (output, stderr_output)
+
 
 def validate():
     n=Node()
@@ -111,6 +144,7 @@ def validate():
     n.isAvailable()
     n.setAvailable(True)
     print(n.command("whoami"))
+
 
 if __name__ == "__main__":
     validate()
