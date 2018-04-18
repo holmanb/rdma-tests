@@ -10,7 +10,7 @@ test writing quick and easy.
 
 Test Writing Instructions
 -------------------------
-1. It is recommended, ut not required to create a new .py file for your new test.  This can be placed in any directory or subdirectory under /scripts.
+1. It is recommended, but not required to create a new .py file for your new test.  This can be placed in any directory or subdirectory under /scripts.
 2. In your new file, create a function that runs your test. 
 3. Create a `Test()` object, and assign it to an instance variable.  In the instansiation of the object, pass the function to the `Test()`
 e.g. `myTest=Test(script=myFunction)`
