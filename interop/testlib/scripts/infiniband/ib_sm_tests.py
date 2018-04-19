@@ -64,7 +64,7 @@ def test1_1(node1, node2):
     while not output[0] and counter < 10:
         print("Output was empty trying again: ", counter)
         output_error = " ".join(output[1].split("\n")
-        print("Error: ", output_error)
+        print("Error: ",output_error)
         output = node1.command("sudo saquery -t 5000")
         counter += 1
 
