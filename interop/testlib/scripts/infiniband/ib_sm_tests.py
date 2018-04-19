@@ -56,7 +56,12 @@ def test1():
 
 def test1_1(node1, node2):
     print("starting", node1.ethif.aliases[0], " subnet manager")
-    node1.sm.start()
+    # if starting fails try again up to 5 times
+    counter = 0
+    while not node1.sm.start() and counter < 5:
+        print("{} failed to start. Trying again: {}".format(node1.ethif.aliases[0],counter))
+        counter += 1
+
     
     # run "saquery" on a node in the fabric
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
