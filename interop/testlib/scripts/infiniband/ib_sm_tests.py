@@ -77,6 +77,7 @@ def test1_1(node1, node2):
             ethernet_aliases.append(node.ethif.aliases[0])
 
     print(ethernet_aliases)
+    print()
 
     del output
 
