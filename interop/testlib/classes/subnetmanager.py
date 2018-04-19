@@ -48,11 +48,13 @@ class SubnetManager:
         """
         self.ip = self.node.ethif.ip
         if self.node.is_up():
+
             # opensm for status
             output = self.node.command("systemctl status opensm")
 
             if output[1].strip():
                 print(output[1])
+                print("on node: {}".format(self.ip))
             active_lines = []
             for line in output[0].split('\n'):
                 if "Active: " in line:

@@ -113,8 +113,8 @@ class Node:
         #print(str(self.ethif.id))
         if "master" in self.ethif.id.lower():
             p = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            output = p.communicate()[0].decode('utf-8')
-            return output
+            output = p.communicate()
+            return [output[0].decode('utf-8'), output[1].decode('utf-8')]
 
         # Otherwise go for it
         else:
@@ -125,17 +125,25 @@ class Node:
                 mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
             except FileNotFoundError as e:
                 raise RSAKeySetupError("RSA keys need to be setup")
-
+            
             try:
+                o=[]
                 ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
+                stdin, stdout, stderr = ssh.exec_command(command)
+                output = "".join(stdout.readlines())
+                stderr_output = "".join(stderr.readlines()) 
+                if not output:
+                    output = ""
+                if not stderr_output:
+                    stderr_output = ""
+                o  = [output, stderr_output]
+
             except Exception as e:
                 print("ip:{} port:{} name:{} key:{}".format(self.ethif.ip,22,username,str(mykey)))
                 raise e
-            stdin, stdout, stderr = ssh.exec_command(command)
-            output = "".join(stdout.readlines())
-            stderr_output = "".join(stdout.readlines()) 
-            return (output, stderr_output)
-
+            finally:
+                ssh.close()
+                return o 
 
 def validate():
     n=Node()

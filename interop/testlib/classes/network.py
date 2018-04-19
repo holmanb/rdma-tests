@@ -229,10 +229,10 @@ def parse_nodes_new():
 
                 # Save the switch 
                 if config['roceswitch'] in line:
-                    roceswitch = Switch(ethif=interface, username=config['roce_username'])
+                    roceswitch = Switch(ethif=interface, username=config['roce_username'], switch_type='cumulus')
 
                 elif config['infinibandswitch'] in line:
-                    ibswitch = Switch(ethif=interface, username=config['ib_username'])
+                    ibswitch = Switch(ethif=interface, username=config['ib_username'], switch_type='mlnx')
 
                 # Need to identify which node to add to
                 elif config['omnipath'] in line:

@@ -14,13 +14,13 @@ def r_pad(arg, length):
 
 
 class Interface:
-    def __init__(self, ip=None, header=None, hostname=None, aliases=None):
+    def __init__(self, ip=None, header=None, hostname=None, aliases=[]):
         """ Represents a node's interface. Stores ipaddr, hostname, etc.
         This gets interface state on intitialization.
         """
         self.id = header or ""
         self.hostname = hostname or ""
-        self.aliases = aliases or []
+        self.aliases = aliases
         self.ip = ""
         if ip:
             try:
