@@ -26,7 +26,6 @@ class SubnetManager:
         """
         if self.node.is_up():
             output = self.node.command("systemctl start opensm")
-            print(output)
             if output[1].strip():
                 print(output[1])
             return True
