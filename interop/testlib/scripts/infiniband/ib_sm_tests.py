@@ -56,15 +56,15 @@ def test1_1(node1, node2):
     print("parsing output")
     # run "saquery" on a node in the fabric
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
-    output = node1.command("sudo saquery -t 500")
+    output = node1.command("sudo saquery -t 5000")
     ## verify that all nodes in the cluster are presetn in the output
 
     # was not getting output consistently from saquery so checking again
-    print(output)
     counter = 0
-    while not output and counter < 10:
+    while not output[0] and counter < 10:
         print("output was empty trying again: ", counter)
-        output = node1.command("sudo saquery -t 500")
+        print("error: ", output[1])
+        output = node1.command("sudo saquery -t 5000")
         counter += 1
 
     matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output[0])
