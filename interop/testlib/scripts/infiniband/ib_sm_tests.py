@@ -49,6 +49,7 @@ def test1_1(node1, node2):
     for node in network.nodes:
         if node.sm.status() == 'active':
             node.sm.stop()
+    print(node1.ethif.aliases)
     print("starting", node1.ethif.aliases[0], " sm")
     node1.sm.start()
     
