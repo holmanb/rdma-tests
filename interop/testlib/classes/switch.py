@@ -11,11 +11,12 @@ except Exception as e:
 import sys
 
 class Switch(Node):
-    def __init__(self, ethif=None, available=None):
+    def __init__(self, ethif=None, available=None, username=None):
         """ Parent has side effects we don't wand
         """
         self.ethif=ethif
         self._available=None
+        self.username=username
 
     def print(self):
         """ Prints switch information
@@ -25,3 +26,8 @@ class Switch(Node):
             if self.ethif:
                 sys.stdout.write("Ethernet:        ")
                 self.ethif.print()
+
+    def whoami(self):
+        """ Example of using inherited method.
+        """
+        super().command('whoami',username=self.username)
