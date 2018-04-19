@@ -28,6 +28,10 @@ class SubnetManager:
             output = self.node.command("systemctl start opensm")
             if output[1].strip():
                 print(output[1])
+
+                # More sensible return value for failed sm start
+                if "opensm.service failed" in  output[1].strip():
+                    return False
             return True
         else:
             return False
