@@ -28,6 +28,12 @@ def test1():
     #gets two nodes to send to test1_1
     network.load_nodes()
 
+    # disable all SMs in the cluster
+    print("stopping all active subnet managers")
+    for node in network.nodes:
+        if node.sm.status() == 'active':
+            node.sm.stop()
+
     for x in range(0, len(network.nodes)):
         for y in range(0, len(network.nodes)):
             #if the nodes are identical, skip this iteration
@@ -40,16 +46,15 @@ def test1():
             print("running tests on nodes: ",node1.ethif.aliases[0]," and ",node2.ethif.aliases[0])
             test1_1(node1, node2)
 
+            #stopping the subnet managers on each node used
+            node1.sm.stop()
+            node2.sm.stop()
+
+
     
 
 
 def test1_1(node1, node2):
-    print("stopping all SMs")
-    # disable all SMs in the cluster then start a SM on either machine in a chosen pair.
-    for node in network.nodes:
-        if node.sm.status() == 'active':
-            node.sm.stop()
-    print(node1.ethif.aliases)
     print("starting", node1.ethif.aliases[0], " subnet manager")
     node1.sm.start()
     
