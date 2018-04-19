@@ -67,7 +67,7 @@ def test1_1(node1, node2):
         output = node1.command("sudo saquery -t 500")
         counter += 1
 
-    matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output)
+    matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output[0])
     if matchObj:
         print(matchObj)
     for node in network.nodes:
