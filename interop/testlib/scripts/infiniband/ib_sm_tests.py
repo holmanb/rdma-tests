@@ -50,30 +50,33 @@ def test1_1(node1, node2):
         if node.sm.status() == 'active':
             node.sm.stop()
     print(node1.ethif.aliases)
-    print("starting", node1.ethif.aliases[0], " sm")
+    print("starting", node1.ethif.aliases[0], " subnet manager")
     node1.sm.start()
     
-    print("parsing output")
     # run "saquery" on a node in the fabric
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
+    print("Running saquery on ", node1.ethif.aliases[0])
     output = node1.command("sudo saquery -t 5000")
     ## verify that all nodes in the cluster are presetn in the output
 
     # was not getting output consistently from saquery so checking again
     counter = 0
     while not output[0] and counter < 10:
-        print("output was empty trying again: ", counter)
-        print("error: [{}]".format(output[1]))
+        print("Output was empty trying again: ", counter)
+        output_error = " ".join(output[1].split("\n")
+        print("Error: ", output_error)
         output = node1.command("sudo saquery -t 5000")
         counter += 1
 
     matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output[0])
     if matchObj:
         print(matchObj)
+    ethernet_aliases = []
     for node in network.nodes:
         if(node.ethif):
-            print(node.ethif.aliases)
-            print()
+            ethernet_aliases.append(node.ethif.aliases[0])
+
+    print(ethernet_aliases)
 
     del output
 
