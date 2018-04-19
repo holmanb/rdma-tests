@@ -59,6 +59,7 @@ def test1_1(node1, node2):
     ## verify that all nodes in the cluster are presetn in the output
 
     # was not getting output consistently from saquery so checking again
+    print(output)
     counter = 0
     while not output and counter < 10:
         print("output was empty trying again: ", counter)
