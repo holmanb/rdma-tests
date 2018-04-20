@@ -18,9 +18,7 @@ import sys
 import csv
 import pkgutil
 import importlib
-
-# Python3 additional modules
-#import paramiko
+import time
 
 # User Defined Modules 
 import testlib
@@ -33,13 +31,15 @@ import testlib.test
 # Save tty settings
 os.system('stty -g > ~/.stty')
 
+# Time 
+TIME = time.strftime("%2018-%m-%d_%H:%M", time.gmtime())
 
 # File Locations 
 INTEROPDIR = os.path.dirname( __file__ )
 LOGPATH = INTEROPDIR +  "/logs"
 LOGS =  LOGPATH +  "/error.log"
 README = INTEROPDIR + "/../README.md"
-OUTPUT = INTEROPDIR + '/output.csv'
+OUTPUT = INTEROPDIR + '/output-{}.csv'.format(TIME)
 
 
 ##
@@ -184,6 +184,9 @@ def print_running(name, iter, total):
 def run_tests(tests, verbose):
     """ Handles running tests and verbosity
     """
+    with open(OUTPUT, 'w+') as f:
+        f.write("OFA Interoperability Test\n{}\n".format(TIME))
+        f.write('\n')
     iter = 0
     total = len(tests.items())
     for key, test in tests.items():
@@ -205,10 +208,7 @@ def run_tests(tests, verbose):
             if not verbose:
                 sys.stdout = old_stdout
         with open(OUTPUT, 'a+') as f:
-            # Use the 'results' variable to print out the pass/fail and comments 
-            w = csv.DictWriter(f, test._outputDict.keys())
-            w.writeheader()
-            w.writerow(test._outputDict)
+            f.write("Testresults[],") 
 
 def main():
     """ Test bench
