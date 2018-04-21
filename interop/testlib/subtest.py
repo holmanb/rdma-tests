@@ -1,7 +1,7 @@
 
 
 class Subtest:
-    def __init__(self,name,test,number):
+    def __init__(self,name=None,test=None,number=None):
         """ Lightweight class for subtests
         """
         self.name=name
@@ -18,7 +18,7 @@ class Subtest:
             error += "If tests cannot complete, they should raise TestCannotComplete() exception explaining the error"
 
             # Validate output
-            valid_output = isinstance(output, list) or len(output)==2 or isinstance(output[0], bool) or isinstance(output[1], str)
+            valid_output = isinstance(output, list) and len(output)==2 and isinstance(output[0], bool) and isinstance(output[1], str)
             if not valid_output:
                 raise TestReturnValueError(error)
 
