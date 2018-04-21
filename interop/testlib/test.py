@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from testlib.subtest import Subtest
+
 class TestReturnValueError(Exception):
     pass
 
@@ -11,21 +13,34 @@ class TestInitializationError(Exception):
 
 class Test:
 
-    def __init__(self, description=None, script=None, args=None, group=None):
+    def __init__(self, description=None, script=None, args=None, group=None, tests=None):
         """ Creates a common interface for all tests.
         """
         self._description = description
         self._script = script
         self._args = args
         self._group=[]
+        self._tests = tests
         if group:
             self.add_group(group)
 
         # Sanity checks, fail early
         if not script:
-            TestInitializationError("You'll need an executable test") 
+            TestInitializationError("You'll need an executable test")
         if not description:
             TestInitializationError("Just give us a few words to describe your test, please")
+        if not tests:
+            TestInitializationError("Need a list of subtests to execute")
+
+        # Make sure it's a test
+        for test in tests:
+            if not isinstance(test, Subtest):
+                TestInitializationError("Need a list of subtests to execute")
+
+    def get_scripts(self):
+        """ Get the callable scripts
+        """
+        return self._tests
 
     def __lt__(self, other):
         """ Allows Tests to be sorted.  Default sorting should be by name.
@@ -48,28 +63,28 @@ class Test:
             # Validate output
             valid_output = isinstance(output, list) or len(output)==2 or isinstance(output[0], bool) or isinstance(output[1], str)
             if not valid_output:
-                raise TestReturnValueError(error) 
+                raise TestReturnValueError(error)
 
-        if self._args is not None: 
+        if self._args is not None:
 
             # Run the test script
             output = self._script(self._args)
 
             # Validate the test script
-            validate_output(output) 
+            validate_output(output)
 
             # Dict for readablity
-            return {"success" : output[0], "comments" : output [1]}        
+            return {"success" : output[0], "comments" : output [1]}
         else:
 
             # Run test script
             output = self._script()
 
             # Validate the test script
-            validate_output(output) 
+            validate_output(output)
 
             # Dict for readablity
-            return {"success" : output[0], "comments" : output [1]}        
+            return {"success" : output[0], "comments" : output [1]}
 
     def get_description(self):
         return self._description

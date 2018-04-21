@@ -208,7 +208,63 @@ def run_tests(tests, verbose):
             if not verbose:
                 sys.stdout = old_stdout
         with open(OUTPUT, 'a+') as f:
-            f.write("Testresults[],") 
+            f.write("Testresults[],")
+
+def run_subtests(tests, verbose):
+    """ Get and execute all of the subtests in a test
+    """
+    with open(OUTPUT, 'w+') as f:
+        f.write("OFA Interoperability Test\n{}\n".format(TIME))
+        f.write('\n')
+    iter = 0
+    total = len(tests.items())
+    for key, test in tests.items():
+        iter += 1
+        print_running(key, iter, total)
+        output = ""
+        try:
+            if not verbose:
+
+                # Run all of the tests in a subtest
+                for subtest in test.get_stripts():
+                    old_stdout = sys.stdout
+                    with open('/dev/null', 'w') as f:
+                        sys.stdout = f
+
+                        # Run the test
+                        output = subtest.run()
+
+                    # Turn off printing 
+                    if not verbose:
+                        sys.stdout = old_stdout
+
+                    # Formatting stdout and writing to csv
+                    str_print = "{} {} {} {} {}".format(script.number, script.name, output["success"], output["comments"])
+                    str_write = "{},{},{},{},{},{}\n".format(script.number, script.name, 'x' if output["success"] else '','x' if not output["success"] else '' , output["comments"])
+                    print(str_print)
+                    print("need to write to file")
+
+            else:
+
+                # Verbose print the tests in a subtest
+                for subtest in test.get_stripts():
+                    output = subtest.run()
+                    str_print = "{} {} {} {} {}".format(script.number, script.name, output["success"], output["comments"])
+                    str_write = "{},{},{},{},{},{}\n".format(script.number, script.name, 'x' if output["success"] else '','x' if not output["success"] else '' , output["comments"])
+                    print(str_print)
+                    print("need to write to file")
+
+        except Exception as e:
+            if not verbose:
+                sys.stdout = old_stdout
+            print(e)
+        finally:
+            if not verbose:
+                sys.stdout = old_stdout
+        with open(OUTPUT, 'a+') as f:
+            f.write("Testresults[],")
+
+
 
 def main():
     """ Test bench
@@ -366,9 +422,4 @@ if __name__ == "__main__":
     finally:
         os.system('stty `cat ~/.stty`')
         os.system('stty echo')
-
-
-
-
-
 
