@@ -28,6 +28,7 @@ class Node:
         self.opaif = opaif
         self.roceif = roceif
         self.sm = sm
+        self.interface_set = ibif or opaif or roceif or ethif or False
         self._available=available
         if not sm:
             self.sm = SubnetManager(node=self)
@@ -38,18 +39,22 @@ class Node:
             if(self.ibif):
                sys.stderr.write("Reassigning ibif interface {} to {}\n".format(self.ibif.id, ibif.id))
             self.ibif = ibif
+            self.interface_set = True
         if ethif:
             if(self.ethif):
                sys.stderr.write("Reassigning ethif interface {} to {}\n".format(self.ethif.id, ethif.id))
             self.ethif = ethif
+            self.interface_set = True
         if opaif:
             if(self.opaif):
                sys.stderr.write("Reassigning opa interface {} to {}\n".format(self.opaif.id, opaif.id))
             self.opaif = opaif
+            self.interface_set = True
         if roceif:
             if(self.roceif):
                sys.stderr.write("Reassigning roce interface {} to {}\n".format(self.roceif.id, roceif.id))
             self.roceif = roceif
+            self.interface_set = True
 
     def is_up(self):
         """ True if management interface is on the network
@@ -108,42 +113,45 @@ class Node:
     def command(self, command, port=22, username='root'):
         """ Executes a single command on the node and returns the output
         """
+        try:
+            # don't want to SSH into yourself, just use the subprocess builtin
+            #print(str(self.ethif.id))
+            if "master" in self.ethif.id.lower():
+                p = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                output = p.communicate()
+                return [output[0].decode('utf-8'), output[1].decode('utf-8')]
 
-        # don't want to SSH into yourself, just use the subprocess builtin
-        #print(str(self.ethif.id))
-        if "master" in self.ethif.id.lower():
-            p = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            output = p.communicate()
-            return [output[0].decode('utf-8'), output[1].decode('utf-8')]
+            # Otherwise go for it
+            else:
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                privatekeyfile = os.path.expanduser('~/.ssh/id_rsa')
+                try:
+                    mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
+                except FileNotFoundError as e:
+                    raise RSAKeySetupError("RSA keys need to be setup")
+                
+                try:
+                    o=[]
+                    ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
+                    stdin, stdout, stderr = ssh.exec_command(command)
+                    output = "".join(stdout.readlines())
+                    stderr_output = "".join(stderr.readlines()) 
+                    if not output:
+                        output = ""
+                    if not stderr_output:
+                        stderr_output = ""
+                    o  = [output, stderr_output]
 
-        # Otherwise go for it
-        else:
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            privatekeyfile = os.path.expanduser('~/.ssh/id_rsa')
-            try:
-                mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
-            except FileNotFoundError as e:
-                raise RSAKeySetupError("RSA keys need to be setup")
-            
-            try:
-                o=[]
-                ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
-                stdin, stdout, stderr = ssh.exec_command(command)
-                output = "".join(stdout.readlines())
-                stderr_output = "".join(stderr.readlines()) 
-                if not output:
-                    output = ""
-                if not stderr_output:
-                    stderr_output = ""
-                o  = [output, stderr_output]
-
-            except Exception as e:
-                print("ip:{} port:{} name:{} key:{}".format(self.ethif.ip,22,username,str(mykey)))
-                raise e
-            finally:
-                ssh.close()
-                return o 
+                except Exception as e:
+                    print("ip:{} port:{} name:{} key:{}".format(self.ethif.ip,22,username,str(mykey)))
+                    raise e
+                finally:
+                    ssh.close()
+                    return o 
+        except Exception as e:
+            print("error in command() on node: " + str(self.ethif.ip))
+            raise e
 
 def validate():
     n=Node()

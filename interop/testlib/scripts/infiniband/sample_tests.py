@@ -6,9 +6,7 @@ import os
 
 
 def IBFabricInit():
-    dir = os.path.dirname(__file__)
-    file = 'topology'
-    filepath = dir + '/' + file
+    topology_file = '/tmp/topology'
 
     for node in network.nodes:
         if node.is_up():
@@ -24,7 +22,7 @@ def IBFabricInit():
                     systemGUID = "S" + stat2[-1][2:]
 
             #Generating a topology file
-            node.command("ibdiagnet -wt '{}'".format(filepath))
+            node.command("ibdiagnet -wt '{}'".format(topology_file))
 
             #Clearing all port counters
             node.command("ibdiagnet -pc")
@@ -61,13 +59,14 @@ def IBFabricInit():
                 if string3 in line:
                     print("No bad Guids found")
                     no_bad_guids = True
+            node.command('rm ' +topology_file)
 
             f.close()
 
             # Remove the topology file
-            print(filepath)
-            if os.path.exists(filepath):
-                os.remove(filepath)
+            print(topology_file)
+            if os.path.exists(topology_file):
+                os.remove(topology_file)
 
             # If matches, then true
             if topology_matches and no_illegal_counters and no_bad_guids:

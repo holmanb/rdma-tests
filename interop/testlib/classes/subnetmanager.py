@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import re
+import sys
 
 class SubnetManagerInitializationError(Exception):
     """ Custom initialization exception
