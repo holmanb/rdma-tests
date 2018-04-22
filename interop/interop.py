@@ -239,8 +239,9 @@ def run_subtests(tests, verbose):
         output = ""
         old_stdout = sys.stdout
         with open('/dev/null', 'w') as f:
-            with open(OUTPUT, 'w+') as fh:
+            with open(OUTPUT, 'a+') as fh:
                 try:
+                    fh.write('\n' + key + '\n')
                     if not verbose:
 
                         # Run all of the tests in a subtest
