@@ -38,7 +38,7 @@ def IBFabricInit():
 
             #Skipping the building of GUID list for now
             #Comparing current topology against topology file made at beginning of test
-            Stdout = node.command("ibdiagnet -t 'topology' -s '{}'".format(systemGUID))
+            Stdout = node.command("ibdiagnet -t '{}' -s '{}'".format(topology_file,systemGUID))
             print(Stdout[0])
             string = "perfectly matches the discovered fabric"
             string2 = "No bad Guids were found"

@@ -18,7 +18,7 @@ import sys
 import csv
 import pkgutil
 import importlib
-import time
+import datetime
 import traceback
 
 # User Defined Modules 
@@ -33,14 +33,14 @@ import testlib.test
 os.system('stty -g > ~/.stty')
 
 # Time 
-TIME = time.strftime("%Y-%m-%d__%z", time.gmtime())
+TIME = "{0:%Y-%m-%d__%H-%M-%S}".format(datetime.datetime.now())
 
 # File Locations 
 INTEROPDIR = os.path.dirname( __file__ )
 LOGPATH = INTEROPDIR +  "/logs"
 LOGS =  LOGPATH +  "/error.log"
 README = INTEROPDIR + "/../README.md"
-OUTPUTDIR = INTEROPDIR + '/output/'
+OUTPUTDIR = INTEROPDIR + '/csv_output/'
 OUTPUT = OUTPUTDIR + '/interop-output-{}.csv'.format(TIME)
 
 
@@ -239,46 +239,46 @@ def run_subtests(tests, verbose):
         output = ""
         old_stdout = sys.stdout
         with open('/dev/null', 'w') as f:
-            try:
-                if not verbose:
+            with open(OUTPUT, 'w+') as fh:
+                try:
+                    if not verbose:
 
-                    # Run all of the tests in a subtest
-                    for subtest in sorted(test.get_scripts()):
+                        # Run all of the tests in a subtest
+                        for subtest in sorted(test.get_scripts()):
 
-                        # Run the test
-                        if not verbose:
-                            sys.stdout = f
-                        output = subtest.run()
+                            # Run the test
+                            if not verbose:
+                                sys.stdout = f
+                            output = subtest.run()
 
-                        # Turn off printing 
-                        if not verbose:
-                            sys.stdout = old_stdout
+                            # Turn off printing 
+                            if not verbose:
+                                sys.stdout = old_stdout
 
-                        # Formatting stdout and writing to csv
-                        str_print = "\t{} | {} | {} |  {} ".format(r_pad(subtest.number, 5), r_pad(subtest.name, 25), 'Passed' if output["success"] else 'Failed', output["comments"])
+                            # Formatting stdout and writing to csv
+                            str_print = "\t{} | {} | {} |  {} ".format(r_pad(subtest.number, 5), r_pad(subtest.name, 25), 'Passed' if output["success"] else 'Failed', output["comments"])
 
-                        str_write = "\t{},{},{},{},{}\n".format(subtest.number, subtest.name, 'x' if output["success"] else '','x' if not output["success"] else '' , output["comments"])
-                        print(str_print)
-                        with open(OUTPUT, 'w+') as fh:
+                            str_write = "\t{},{},{},{},{}\n".format(subtest.number, subtest.name, 'x' if output["success"] else '','x' if not output["success"] else '' , output["comments"])
+                            print(str_print)
                             fh.write(str_write)
 
-                else:
+                    else:
 
-                    # Verbose print the tests in a subtest
-                    for subtest in sorted(test.get_scripts()):
-                        output = subtest.run()
-                        str_print = "\t{} | {} | {} |  {} ".format(r_pad(subtest.number,5), r_pad(subtest.name,25), 'Passed' if output["success"] else 'Failed', output["comments"])
+                        # Verbose print the tests in a subtest
+                        for subtest in sorted(test.get_scripts()):
+                            output = subtest.run()
+                            str_print = "\t{} | {} | {} |  {} ".format(r_pad(subtest.number,5), r_pad(subtest.name,25), 'Passed' if output["success"] else 'Failed', output["comments"])
 
-                        str_write = "\t{},{},{},{},{}\n".format(subtest.number, subtest.name, 'x' if output["success"] else '','x' if not output["success"] else '' , output["comments"])
-                        print(str_print)
-                        with open(OUTPUT, 'w+') as fh:
+                            str_write = "\t{},{},{},{},{}\n".format(subtest.number, subtest.name, 'x' if output["success"] else '','x' if not output["success"] else '' , output["comments"])
+                            print(str_print)
                             fh.write(str_write)
 
-            except Exception as e:
-                if not verbose:
-                    sys.stdout = old_stdout
-                traceback.print_tb(e.__traceback__)
-                print(e)
+                except Exception as e:
+                    fh.write(subtest.name + " failed due to exception: [{}]".format(e))
+                    if not verbose:
+                        sys.stdout = old_stdout
+                    traceback.print_tb(e.__traceback__)
+                    print(e)
 #        finally:
 #            if not verbose:
         #with open(OUTPUT, 'a+') as f:
