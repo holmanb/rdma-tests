@@ -44,7 +44,8 @@ def IBFabricInit():
             string2 = "No bad Guids were found"
             string3 = "No illegal PM counters values were found"
 
-            f = open('/var/cache/ibutils/ibdiagnet.log', 'r')
+            #f = open('/var/cache/ibutils/ibdiagnet.log', 'r')
+            f = open(topology_file, 'r')
             contents = f.readlines()
             topology_matches = False
             no_illegal_counters = False
@@ -75,11 +76,11 @@ def IBFabricInit():
             # Reasonable comments printed on failure
             comments = ""
             if not topology_matches:
-                comments += "Topology from before and after test doesn't match\n"
+                comments += "*Topology before & after doesn't match"
             if not no_illegal_counters:
-                comments += "Illegal PM counters fount\n"
+                comments += "*Illegal PM counters found "
             if not no_bad_guids:
-                comments += "Bad GUIDs found"
+                comments += "*Bad GUIDs found"
 
             return [False, comments] 
 
