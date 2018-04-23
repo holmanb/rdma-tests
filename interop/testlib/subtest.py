@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from testlib.test import Test
+import testlib.test import Test
 
 class Subtest:
     def __init__(self,name=None,test=None,number=None):
