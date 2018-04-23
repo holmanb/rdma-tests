@@ -1,4 +1,5 @@
 import testlib.test as Test
+import testlib.subtest as subtest
 import testlib.classes.network as network
 import re
 
@@ -24,7 +25,7 @@ master and configures the cluster accordingly.
 # In this test, all active SMs on the fabric which are going to be tested, must be from the same 
 # vendor. They will be tested pairwise; two at a time.
 
-def test1():
+def nodeSelection():
     #gets two nodes to send to test1_1
     network.load_nodes()
 
@@ -52,6 +53,24 @@ def test1():
 
 
     
+def test1():
+    network.load_nodes()
+    print("printing status of all nodes")
+    for node in network.nodes:
+        print(node.sm.status())
+    
+    print()
+
+    # disable all SMs in the cluster
+    print("stopping all active subnet managers")
+    for node in network.nodes:
+        if node.sm.status() == 'active':
+            node.sm.stop()
+
+    # verify all SMs are disabled
+    print("printing status of all nodes")
+    for node in network.nodes:
+        print(node.sm.status())
 
 
 def test1_1(node1, node2):
@@ -100,4 +119,6 @@ def test1_1(node1, node2):
 #def test2():
     # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
 
-Test1 = Test.Test(script=test1,  description="ib sm test")
+Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
+Table5 = Test.Test(tests=[Test1],  description="ib sm test")
+
