@@ -51,7 +51,8 @@ def nodeSelection():
             node1.sm.stop()
             node2.sm.stop()
 
-
+def throwaway():
+    network.nodes[3].sm.start()
     
 def test1():
     network.load_nodes()
@@ -121,6 +122,7 @@ def test1_1(node1, node2):
 #def test2():
     # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
 
-Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
-Table5 = Test.Test(tests=[Test1],  description="ib sm test")
+throwaway = subtest.Subtest(test=throwaway, name="testing stuff", number='1')
+Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='2')
+Table5 = Test.Test(tests=[Test1, throwaway],  description="ib sm test")
 
