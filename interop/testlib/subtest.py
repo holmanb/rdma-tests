@@ -1,4 +1,4 @@
-
+import test
 
 class Subtest:
     def __init__(self,name=None,test=None,number=None):
@@ -20,7 +20,7 @@ class Subtest:
             # Validate output
             valid_output = isinstance(output, list) and len(output)==2 and isinstance(output[0], bool) and isinstance(output[1], str)
             if not valid_output:
-                raise TestReturnValueError(error)
+                raise test.TestReturnValueError(error)
 
         output = self.test()
         validate_output(output)
