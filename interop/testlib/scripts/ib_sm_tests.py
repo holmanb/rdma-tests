@@ -53,6 +53,7 @@ def nodeSelection():
 
 def throwaway():
     network.nodes[3].sm.start()
+    return [True, "this is just starting node 3"]
     
 def test1():
     network.load_nodes()
