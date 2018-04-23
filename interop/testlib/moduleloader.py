@@ -41,7 +41,7 @@ def load_modules(file_name, PACKAGE, skip_dir=None):
                 try:
                     modules += import_dir(path+"/"+f, load_dir(path + '/' + f))
                 except NotADirectoryError:
-                    sys.stderr.write("Need to do some cleanup... attempted to enter {}/{} as a directory\n take a look at {}'s src code for more detail".format(path,f, __file__))
+                    sys.stderr.write("Need to do some cleanup... attempted to enter {}/{} as a directory\n take a look at {}'s src code for more detail\n".format(path,f, __file__))
 
         # modules under testlib are not tests and do not need to by dynamically loaded 
         if skip_dir and (importmod == skip_dir):

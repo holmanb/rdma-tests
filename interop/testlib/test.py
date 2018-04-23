@@ -1,19 +1,46 @@
 #!/usr/bin/python3
 
+from testlib.subtest import Subtest
+
+class TestReturnValueError(Exception):
+    pass
+
+class TestCannotComplete(Exception):
+    pass
+
+class TestInitializationError(Exception):
+    pass
 
 class Test:
 
-    def __init__(self, description=None, script=None, args=None, group=None, outputDict=None):
+    def __init__(self, description=None, script=None, args=None, group=None, tests=None):
         """ Creates a common interface for all tests.
         """
-        self._name = script.__name__
         self._description = description
         self._script = script
         self._args = args
         self._group=[]
-        self._outputDict ={}
+        self._tests = tests
         if group:
             self.add_group(group)
+
+        # Sanity checks, fail early
+        if not script:
+            TestInitializationError("You'll need an executable test")
+        if not description:
+            TestInitializationError("Just give us a few words to describe your test, please")
+        if not tests:
+            TestInitializationError("Need a list of subtests to execute")
+
+        # Make sure it's a test
+        for test in tests:
+            if not isinstance(test, Subtest):
+                TestInitializationError("Need a list of subtests to execute")
+
+    def get_scripts(self):
+        """ Get the callable scripts
+        """
+        return self._tests
 
     def __lt__(self, other):
         """ Allows Tests to be sorted.  Default sorting should be by name.
@@ -22,20 +49,42 @@ class Test:
             return self._name < other._name
         except AttributeError:
             return NotImplemented
-    def get_name(self):
-        """ Get the test name.  This name can be used with `./interop.py -t [name]` to execute this test.
-        """
-        return self._name
 
     def run(self):
         """ Executes the test.
         """
-        if self._args is not None: 
-            self._outputDict = {"name" : self._name, "success" : "success condition", "comments" : "placeholder comments"}
-            return self._script(self._args)
+
+        def validate_output(output):
+
+            # Tests must conform to the output describied in this string
+            error =  "Tests must return the following format: [bool_pass_or_fail, str_description]\n"
+            error += "If tests cannot complete, they should raise TestCannotComplete() exception explaining the error"
+
+            # Validate output
+            valid_output = isinstance(output, list) or len(output)==2 or isinstance(output[0], bool) or isinstance(output[1], str)
+            if not valid_output:
+                raise TestReturnValueError(error)
+
+        if self._args is not None:
+
+            # Run the test script
+            output = self._script(self._args)
+
+            # Validate the test script
+            validate_output(output)
+
+            # Dict for readablity
+            return {"success" : output[0], "comments" : output [1]}
         else:
-            self._outputDict = {"name" : self._name, "success" : "success condition", "comments" : "placeholder comments"}
-            return self._script()
+
+            # Run test script
+            output = self._script()
+
+            # Validate the test script
+            validate_output(output)
+
+            # Dict for readablity
+            return {"success" : output[0], "comments" : output [1]}
 
     def get_description(self):
         return self._description

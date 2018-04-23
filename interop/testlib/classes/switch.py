@@ -47,12 +47,48 @@ class Switch(Node):
         def mlnx():
             """ For rebooting switches that use mlnx-os
             """
+
+            # Rebooting the switch requires these two 
+            # commands to be called in succession
+            command1 = 'enable'
+            command2 = 'reload'
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            privatekeyfile = os.path.expanduser('~/.ssh/id_rsa')
+            try:
+                mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
+            except FileNotFoundError as e:
+                raise RSAKeySetupError("RSA keys need to be setup")
+            
+            try:
+                o=[]
+                ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
+                stdin, stdout, stderr = ssh.exec_command(command1)
+                stdin, stdout, stderr = ssh.exec_command(command2)
+                output = "".join(stdout.readlines())
+                stderr_output = "".join(stderr.readlines()) 
+                if not output:
+                    output = ""
+                if not stderr_output:
+                    stderr_output = ""
+
+                # Return values is stdout = o[0], stderr = o[1]
+                o = [output, stderr_output]
+
+            except Exception as e:
+                print("ip:{} port:{} name:{} key:{}".format(self.ethif.ip,22,username,str(mykey)))
+                raise e
+            finally:
+                ssh.close()
+                return o 
             pass
+            
 
         def nix_like():
             """ For rebooting switches that use *nix-like shutdown commands
             """
-            pass
+            super().command('reboot -h now',username=self.username)
+            
 
         if self.type == 'mlnx':
             mlnx()

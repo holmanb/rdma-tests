@@ -178,6 +178,7 @@ def parse_nodes_new():
                 # Skip blank and commented lines
                 if not line or line[0] == "#":
                     continue
+                # Skip these nodes
                 else:
                     values = get_values(line)
                     config[values[0]] = values[1]
@@ -196,7 +197,7 @@ def parse_nodes_new():
 
     # Get configs from config file
     config = parse_config()
-    for node in range(int(config['node_number'])):
+    for node in range(int(config['max_nodes'])):
         add_node(Node())
     host_file= '/etc/hosts'
     with open(host_file) as hostfile:
@@ -204,7 +205,12 @@ def parse_nodes_new():
             line = line.strip()
 
             # Skip blank and commented lines
-            if not line or line[0] == "#" or 'localhost' in line:
+            # skip nodes in the config
+            skip=False
+            for node in config['ignore_nodes'].split(','):
+                if node.strip() in line:
+                    skip=True
+            if not line or line[0] == "#"  or skip:
                 continue
             else:
                 # Skip any ipv6 addresses, raise error if any addresses are improperly formatted
@@ -274,7 +280,15 @@ def load_nodes():
     threads = []
 
     # Get node info
-    for node in nodes:
+    for i,node in enumerate(nodes):
+
+        # Remove unset nodes
+        if not node.interface_set:
+            del nodes[i]
+        if not node.ethif and not node.ibif and not node.opaif and not node.roceif:
+            del nodes[i]
+
+        # Pring for node statuses in parallel
         if node.ethif:
             threads.append(threading.Thread(target=node.ethif.get_state))
         if node.ibif:
@@ -298,9 +312,17 @@ def load_nodes():
     for thread in threads:
         thread.join()
 
+    # Double check there aren't unused nodes
+    for i,node in enumerate(nodes):
+        if not node.interface_set:
+            del nodes[i]
+        if not node.ethif and not node.ibif and not node.opaif and not node.roceif:
+            del nodes[i]
+
     # update SM status now that interfaces are updated
     for node in nodes:
-        node.sm.status()
+        if node.ethif:
+            node.sm.status()
 
     return self
 

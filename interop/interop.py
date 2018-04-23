@@ -18,9 +18,8 @@ import sys
 import csv
 import pkgutil
 import importlib
-
-# Python3 additional modules
-#import paramiko
+import datetime
+import traceback
 
 # User Defined Modules 
 import testlib
@@ -33,13 +32,16 @@ import testlib.test
 # Save tty settings
 os.system('stty -g > ~/.stty')
 
+# Time 
+TIME = "{0:%Y-%m-%d__%H-%M-%S}".format(datetime.datetime.now())
 
 # File Locations 
 INTEROPDIR = os.path.dirname( __file__ )
 LOGPATH = INTEROPDIR +  "/logs"
 LOGS =  LOGPATH +  "/error.log"
 README = INTEROPDIR + "/../README.md"
-OUTPUT = INTEROPDIR + '/output.csv'
+OUTPUTDIR = INTEROPDIR + '/csv_output/'
+OUTPUT = OUTPUTDIR + '/interop-output-{}.csv'.format(TIME)
 
 
 ##
@@ -70,6 +72,10 @@ formatter = logging.Formatter('%(levelname)s-%(message)s')
 # Make a LOG file if it doesn't exist
 if not os.path.exists(LOGPATH):
     os.makedirs(LOGPATH)
+
+# Make a directory for output if it doesn't exist
+if not os.path.exists(OUTPUTDIR):
+    os.makedirs(OUTPUTDIR)
 
 # create file handler which logs debug messages
 fh = logging.FileHandler(LOGS)
@@ -125,6 +131,15 @@ def getGroups(tests):
                 groupDict[group] = [[value,key]]
     return groupDict
 
+def r_pad(arg, length):
+    """ not getting rjust, center, or ljust to work the way I want, so I'm rolling my own
+    """
+    if length <= len(arg):
+        return arg
+    else:
+        return arg + " " * (length - len(arg))
+
+
 def print_tests(TESTS):
     """ Prints formated tests available for testing 
     """
@@ -178,12 +193,15 @@ def validate_args(args, dictionary, logger):
 def print_running(name, iter, total):
     """ Print the running line
     """
-    message = "Running:\t[{}]".format(name)
+    message = "[{}]".format(name)
     print(message + ("-" * (100 - len(message) - len(str(iter))) + str(iter) +"/" + str(total)))
 
 def run_tests(tests, verbose):
     """ Handles running tests and verbosity
     """
+    with open(OUTPUT, 'w+') as f:
+        f.write("OFA Interoperability Test\n{}\n".format(TIME))
+        f.write('\n')
     iter = 0
     total = len(tests.items())
     for key, test in tests.items():
@@ -200,15 +218,74 @@ def run_tests(tests, verbose):
         except Exception as e:
             if not verbose:
                 sys.stdout = old_stdout
-            print(e)
+            traceback.print_tb(e.__traceback__)
         finally:
             if not verbose:
                 sys.stdout = old_stdout
         with open(OUTPUT, 'a+') as f:
-            # Use the 'results' variable to print out the pass/fail and comments 
-            w = csv.DictWriter(f, test._outputDict.keys())
-            w.writeheader()
-            w.writerow(test._outputDict)
+            f.write("Testresults[],")
+
+def run_subtests(tests, verbose):
+    """ Get and execute all of the subtests in a test
+    """
+    with open(OUTPUT, 'w+') as f:
+        f.write("OFA Interoperability Test\n{}\n".format(TIME))
+        f.write('\n')
+    iter = 0
+    total = len(tests.items())
+    for key, test in tests.items():
+        iter += 1
+        print_running(key, iter, total)
+        output = ""
+        old_stdout = sys.stdout
+        with open('/dev/null', 'w') as f:
+            with open(OUTPUT, 'a+') as fh:
+                try:
+                    fh.write('\n' + key + '\n')
+                    if not verbose:
+
+                        # Run all of the tests in a subtest
+                        for subtest in sorted(test.get_scripts()):
+
+                            # Run the test
+                            if not verbose:
+                                sys.stdout = f
+                            output = subtest.run()
+
+                            # Turn off printing 
+                            if not verbose:
+                                sys.stdout = old_stdout
+
+                            # Formatting stdout and writing to csv
+                            str_print = "\t{} | {} | {} |  {} ".format(r_pad(subtest.number, 5), r_pad(subtest.name, 25), 'Passed' if output["success"] else 'Failed', output["comments"])
+
+                            str_write = "\t{},{},{},{},{}\n".format(subtest.number, subtest.name, 'x' if output["success"] else '','x' if not output["success"] else '' , output["comments"])
+                            print(str_print)
+                            fh.write(str_write)
+
+                    else:
+
+                        # Verbose print the tests in a subtest
+                        for subtest in sorted(test.get_scripts()):
+                            output = subtest.run()
+                            str_print = "\t{} | {} | {} |  {} ".format(r_pad(subtest.number,5), r_pad(subtest.name,25), 'Passed' if output["success"] else 'Failed', output["comments"])
+
+                            str_write = "\t{},{},{},{},{}\n".format(subtest.number, subtest.name, 'x' if output["success"] else '','x' if not output["success"] else '' , output["comments"])
+                            print(str_print)
+                            fh.write(str_write)
+
+                except Exception as e:
+                    fh.write(subtest.name + " failed due to exception: [{}]".format(e))
+                    if not verbose:
+                        sys.stdout = old_stdout
+                    traceback.print_tb(e.__traceback__)
+                    print(e)
+#        finally:
+#            if not verbose:
+        #with open(OUTPUT, 'a+') as f:
+        #    f.write("Testresults[],")
+
+
 
 def main():
     """ Test bench
@@ -283,7 +360,7 @@ def main():
         logger.debug("Running all of the tests")
 
         # Iterate through and run tests
-        run_tests(TESTS,args.verbose)
+        run_subtests(TESTS,args.verbose)
 
     # Run a combination of groups and tests
     if args.group and args.test:
@@ -317,7 +394,7 @@ def main():
                 test_dict[argument] =  TESTS[argument]
 
         # Run tests
-        run_tests(test_dict,args.verbose)
+        run_subtests(test_dict,args.verbose)
 
         return 0
 
@@ -337,7 +414,7 @@ def main():
                     test_dict[test[1]] = test[0]
 
         # Run tests 
-        run_tests(test_dict,args.verbose)
+        run_subtests(test_dict,args.verbose)
 
     # Run a list of tests by name
     if args.test:
@@ -353,7 +430,7 @@ def main():
             tests[argument] = TESTS[argument]
 
         # Run the tests
-        run_tests(tests,args.verbose)
+        run_subtests(tests,args.verbose)
     logger.debug("sample debug message")
 
 
@@ -366,9 +443,4 @@ if __name__ == "__main__":
     finally:
         os.system('stty `cat ~/.stty`')
         os.system('stty echo')
-
-
-
-
-
 
