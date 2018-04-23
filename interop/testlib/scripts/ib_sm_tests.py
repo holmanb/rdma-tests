@@ -72,6 +72,8 @@ def test1():
     for node in network.nodes:
         print(node.sm.status())
 
+    return [True, "sample comment from sample_test2"]
+
 
 def test1_1(node1, node2):
     print("starting", node1.ethif.aliases[0], " subnet manager")
