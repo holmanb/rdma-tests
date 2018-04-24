@@ -89,15 +89,14 @@ def nodePairs(node1, node2):
         output = node1.command("sudo saquery -t 5000")
         counter += 1
 
-    matchObj = re.findall( r".*NodeDescription.*\.\.\.(.*) .*", output[0])
-    if matchObj:
-        print(matchObj)
-    ethernet_aliases = []
-    for node in network.nodes:
-        if(node.ethif):
-            ethernet_aliases.append(node.ethif.aliases[0])
+    guid_list = re.findall( r".*node_guid.*0x(.*) .*", output[0])
+    if guid_list:
+        print(guid_list)
 
-    print(ethernet_aliases)
+    # for node in network.nodes:
+    #     if(node.ethif):
+    #         ethernet_aliases.append(node.ethif.aliases[0])
+
     print()
 
     # Verifying all nodes are present in saquery output
@@ -113,6 +112,6 @@ def nodePairs(node1, node2):
     # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
 
 Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
-Test2 = subtest.Subtest(test=test2, name="ib sm subtest 2", number='2')
+Test2 = subtest.Subtest(test=test2, name="ib sm subtest2", number='2')
 Table5 = Test.Test(tests=[Test1, Test2],  description="ib sm test")
 
