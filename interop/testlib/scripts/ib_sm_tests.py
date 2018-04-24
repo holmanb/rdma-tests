@@ -50,18 +50,9 @@ def nodeSelection():
             #stopping the subnet managers on each node used
             node1.sm.stop()
             node2.sm.stop()
-
-def throwaway():
-    network.nodes[3].sm.start()
-    return [True, "this is just starting node 3"]
     
 def test1():
     network.load_nodes()
-    print("printing status of all nodes")
-    for node in network.nodes:
-        print(node.sm.status())
-    
-    print()
 
     # disable all SMs in the cluster
     print("stopping all active subnet managers")
@@ -70,9 +61,11 @@ def test1():
             node.sm.stop()
 
     # verify all SMs are disabled
-    print("printing status of all nodes")
+    print("verifying status of all nodes")
     for node in network.nodes:
-        print(node.sm.status())
+        if node.sm.status() == 'active':
+            print(node.sm.status())
+            return [False, "Subnet manager active on node: {}".format(node.ethif.aliases[0])]
 
     return [True, "sample comment from sample_test2"]
 
@@ -123,7 +116,6 @@ def test1_1(node1, node2):
 #def test2():
     # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
 
-throwaway = subtest.Subtest(test=throwaway, name="testing stuff", number='1')
-Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='2')
+Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
 Table5 = Test.Test(tests=[Test1, throwaway],  description="ib sm test")
 
