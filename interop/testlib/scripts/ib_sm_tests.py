@@ -63,7 +63,6 @@ def test1():
     # verify all SMs are disabled
     print("verifying status of all nodes")
     for node in network.nodes:
-        print(node.sm.status())
         if node.sm.status() == 'inactive':
             print("{}= inactive".format(node.ethif.aliases[0]))
         elif node.sm.status() == 'active':
