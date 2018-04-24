@@ -24,32 +24,6 @@ master and configures the cluster accordingly.
 
 # In this test, all active SMs on the fabric which are going to be tested, must be from the same 
 # vendor. They will be tested pairwise; two at a time.
-
-def nodeSelection():
-    #gets two nodes to send to test1_1
-    network.load_nodes()
-
-    # disable all SMs in the cluster
-    print("stopping all active subnet managers")
-    for node in network.nodes:
-        if node.sm.status() == 'active':
-            node.sm.stop()
-
-    for x in range(0, len(network.nodes)):
-        for y in range(0, len(network.nodes)):
-            #if the nodes are identical, skip this iteration
-            if y == x:
-                continue
-            node1 = network.nodes[x]
-            node2 = network.nodes[y]
-
-            #run the test with those nodes
-            print("running tests on nodes: ",node1.ethif.aliases[0]," and ",node2.ethif.aliases[0])
-            test1_1(node1, node2)
-
-            #stopping the subnet managers on each node used
-            node1.sm.stop()
-            node2.sm.stop()
     
 def test1():
     network.load_nodes()
@@ -61,7 +35,7 @@ def test1():
             node.sm.stop()
 
     # verify all SMs are disabled
-    print("verifying status of all nodes")
+    print("verifying status of all nodes:")
     for node in network.nodes:
         if node.sm.status() == 'inactive':
             print("{}= inactive".format(node.ethif.aliases[0]))
@@ -72,8 +46,43 @@ def test1():
 
     return [True, "sample comment from sample_test2"]
 
+def testing():
+    node1 = network.nodes[0]
+    node2 = network.nodes[1]
 
-def test1_1(node1, node2):
+    print("starting", node1.ethif.aliases[0], " subnet manager")
+    # if starting fails try again up to 5 times
+    counter = 0
+    while not node1.sm.start() and counter < 5:
+        print("{} failed to start. Trying again: {}".format(node1.ethif.aliases[0],counter))
+        counter += 1
+
+    print("starting", node2.ethif.aliases[0], " subnet manager")
+    # if starting fails try again up to 5 times
+    counter = 0
+    while not node2.sm.start() and counter < 5:
+        print("{} failed to start. Trying again: {}".format(node2.ethif.aliases[0],counter))
+        counter += 1
+
+def test2():
+    #gets two nodes to send to test2
+    for x in range(0, len(network.nodes)):
+        for y in range(0, len(network.nodes)):
+            #if the nodes are identical, skip this iteration
+            if y == x:
+                continue
+            node1 = network.nodes[x]
+            node2 = network.nodes[y]
+
+            #run the test with those nodes
+            print("running tests on nodes: ",node1.ethif.aliases[0]," and ",node2.ethif.aliases[0])
+            nodePairs(node1, node2)
+
+            #stopping the subnet managers on each node used
+            node1.sm.stop()
+            node2.sm.stop()
+
+def nodePairs(node1, node2):
     print("starting", node1.ethif.aliases[0], " subnet manager")
     # if starting fails try again up to 5 times
     counter = 0
@@ -120,5 +129,6 @@ def test1_1(node1, node2):
     # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
 
 Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
-Table5 = Test.Test(tests=[Test1],  description="ib sm test")
+Test2 = subtest.Subtest(test=testing, name="ib sm subtest2", number='2')
+Table5 = Test.Test(tests=[Test1, Test2],  description="ib sm test")
 
