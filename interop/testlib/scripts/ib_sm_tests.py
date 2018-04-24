@@ -117,5 +117,5 @@ def test1_1(node1, node2):
     # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
 
 Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
-Table5 = Test.Test(tests=[Test1, throwaway],  description="ib sm test")
+Table5 = Test.Test(tests=[Test1],  description="ib sm test")
 
