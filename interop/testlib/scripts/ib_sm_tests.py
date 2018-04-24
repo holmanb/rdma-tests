@@ -64,8 +64,12 @@ def test1():
     print("verifying status of all nodes")
     for node in network.nodes:
         print(node.sm.status())
-        if node.sm.status() == 'active':
-            return [False, "Subnet manager active on node: {}".format(node.ethif.aliases[0])]
+        if node.sm.status() == 'inactive':
+            print("{}= inactive".format(node.ethif.aliases[0]))
+        elif node.sm.status() == 'active':
+            return [False, "Subnet manager is active on node: {}".format(node.ethif.aliases[0])]
+        else:
+            return [False, "Subnet manager is in undefined state ( {} ) on node: {}".format(node.sm.status(), node.ethif.aliases[0])]
 
     return [True, "sample comment from sample_test2"]
 
