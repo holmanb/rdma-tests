@@ -46,34 +46,6 @@ def test1():
 
     return [True, "All SMs were succesfully disabled"]
 
-def testing():
-    node1 = network.nodes[0]
-    node2 = network.nodes[1]
-    node3 = network.nodes[2]
-
-    print("starting", node1.ethif.aliases[0], " subnet manager")
-    # if starting fails try again up to 5 times
-    counter = 0
-    while not node1.sm.start() and counter < 5:
-        print("{} failed to start. Trying again: {}".format(node1.ethif.aliases[0],counter))
-        counter += 1
-
-    print("starting", node2.ethif.aliases[0], " subnet manager")
-    # if starting fails try again up to 5 times
-    counter = 0
-    while not node2.sm.start() and counter < 5:
-        print("{} failed to start. Trying again: {}".format(node2.ethif.aliases[0],counter))
-        counter += 1
-
-    print("starting", node3.ethif.aliases[0], " subnet manager")
-    # if starting fails try again up to 5 times
-    counter = 0
-    while not node3.sm.start() and counter < 5:
-        print("{} failed to start. Trying again: {}".format(node3.ethif.aliases[0],counter))
-        counter += 1
-
-    return [True, "both SMs were started"]
-
 def test2():
     #gets two nodes to send to test2
     for x in range(0, len(network.nodes)):
@@ -128,8 +100,10 @@ def nodePairs(node1, node2):
     print(ethernet_aliases)
     print()
 
-    del output
+    # Verifying all nodes are present in saquery output
 
+
+    del output
 
     # using the ibdiagnet tool with the -r option, verify that the running SM is the master
 
@@ -139,6 +113,6 @@ def nodePairs(node1, node2):
     # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
 
 Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
-Test2 = subtest.Subtest(test=testing, name="ib sm subtest2", number='2')
+Test2 = subtest.Subtest(test=test2, name="ib sm subtest 2", number='2')
 Table5 = Test.Test(tests=[Test1, Test2],  description="ib sm test")
 
