@@ -16,7 +16,8 @@ class Subtest:
         def validate_output(output):
 
             # Tests must conform to the output describied in this string
-            error =  "Tests must return the following format: [bool_pass_or_fail, str_description]\n"
+            error =  "ERROR: In test {} {}\n".format(self.name, self.number)
+            error += "Tests must return the following format: [bool_pass_or_fail, str_description]\n"
             error += "If tests cannot complete, they should raise TestCannotComplete() exception explaining the error"
 
             # Validate output
