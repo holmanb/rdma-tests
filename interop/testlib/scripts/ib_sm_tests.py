@@ -63,8 +63,8 @@ def test1():
     # verify all SMs are disabled
     print("verifying status of all nodes")
     for node in network.nodes:
+        print(node.sm.status())
         if node.sm.status() == 'active':
-            print(node.sm.status())
             return [False, "Subnet manager active on node: {}".format(node.ethif.aliases[0])]
 
     return [True, "sample comment from sample_test2"]
