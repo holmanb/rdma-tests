@@ -49,6 +49,7 @@ def test1():
 def testing():
     node1 = network.nodes[0]
     node2 = network.nodes[1]
+    node3 = network.nodes[2]
 
     print("starting", node1.ethif.aliases[0], " subnet manager")
     # if starting fails try again up to 5 times
