@@ -44,7 +44,7 @@ def test1():
         else:
             return [False, "Subnet manager is in undefined state ( {} ) on node: {}".format(node.sm.status(), node.ethif.aliases[0])]
 
-    return [True, "sample comment from sample_test2"]
+    return [True, "All SMs were succesfully disabled"]
 
 def testing():
     node1 = network.nodes[0]
@@ -63,6 +63,8 @@ def testing():
     while not node2.sm.start() and counter < 5:
         print("{} failed to start. Trying again: {}".format(node2.ethif.aliases[0],counter))
         counter += 1
+
+    return [True, "both SMs were started"]
 
 def test2():
     #gets two nodes to send to test2
