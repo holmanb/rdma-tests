@@ -89,7 +89,7 @@ def nodePairs(node1, node2):
         output = node1.command("sudo saquery -t 5000")
         counter += 1
 
-    guid_list = re.findall( r".*node_guid.*0x(.*) .*", output[0])
+    guid_list = re.findall( r".*node_guid.*0x(.*)", output[0])
     if guid_list:
         print(guid_list)
 
@@ -100,7 +100,6 @@ def nodePairs(node1, node2):
     print()
 
     # Verifying all nodes are present in saquery output
-
 
     del output
 
