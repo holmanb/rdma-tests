@@ -111,6 +111,7 @@ def small_read():
         print("on [{}] running: [{}]".format(client.ethif.ip, cmd_client))
         for thread in threads:
             thread.start()
+            time.sleep(0.5)
 
         # The next couple of lines are funky, but this allows the KeyboardInterrupt 
         # to be recognized
@@ -173,6 +174,7 @@ def small_read():
         print("sleeping")
         time.sleep(5)
         print("waking")
+    return [False, "THIS ISN'T THE ACTUAL OUTPUT, THIS TEST IS WIP"]
 
     perftest(network.nodes[1],network.nodes[2],read_bw)
 
