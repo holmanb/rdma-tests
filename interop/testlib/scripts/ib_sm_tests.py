@@ -64,6 +64,13 @@ def testing():
         print("{} failed to start. Trying again: {}".format(node2.ethif.aliases[0],counter))
         counter += 1
 
+    print("starting", node3.ethif.aliases[0], " subnet manager")
+    # if starting fails try again up to 5 times
+    counter = 0
+    while not node3.sm.start() and counter < 5:
+        print("{} failed to start. Trying again: {}".format(node3.ethif.aliases[0],counter))
+        counter += 1
+
     return [True, "both SMs were started"]
 
 def test2():
