@@ -5,64 +5,64 @@ import time
 import os
 
 
+
+
+def CounterErrors(query):
+    count = 0
+    for lines in query:
+        if "Error" in lines and "#" not in lines:
+            countTmp = lines.split(".")
+            count += int(countTmp[-1])
+    return count
+
 def IBFabricInit():
     topology_file = '/tmp/topology'
-
+    eCount = 0
     for node in network.nodes:
         if node.is_up():
             if(node.sm.status() == "inactive"):
                 node.sm.start()
-            ibstat = node.command("ibstat")[0].split("\n")
-
-            # Getting the system name, then putting it into format that ibdiagnet wants
-            # from 0x<systemguid> to S<systemguid>
-            for lines in ibstat:
-                if "System image GUID:" in lines:
-                    stat2 = lines.split()
-                    systemGUID = "S" + stat2[-1][2:]
 
             #Generating a topology file
-            node.command("ibdiagnet -wt '{}'".format(topology_file))
-
-            #Clearing all port counters
-            node.command("ibdiagnet -pc")
+            node.command("ibnetdiscover --cache '{}'".format(topology_file))
 
             #Waiting for 17 seconds per the specification requirements
             time.sleep(17)
-
-            #Sending 1000 node descriptions
-            node.command("ibdiagnet -c 1000")
-
-            #Generating fabric report, use /tmp/ibdiagnet.sm file to see running s
-            node.command("ibdiagnet")
-
-            #Skipping the building of GUID list for now
-            #Comparing current topology against topology file made at beginning of test
-            Stdout = node.command("ibdiagnet -t '{}' -s '{}'".format(topology_file,systemGUID))
+            Stdout = node.command("ibnetdiscover --diff '{}'".format(topology_file))
             print(Stdout[0])
-            string = "perfectly matches the discovered fabric"
-            string2 = "No bad Guids were found"
-            string3 = "No illegal PM counters values were found"
 
-            #f = open('/var/cache/ibutils/ibdiagnet.log', 'r')
-            f = open(topology_file, 'r')
-            contents = f.readlines()
+            #Getting the port counters(to check for bad one) from perfquery to mimic ibdiagnet
+            perfQuery1 = node.command("perfquery -a")[0].split("\n")
+            print(perfQuery1)
+            eCount += CounterErrors(perfQuery1)
+            perfQuery2 = node.command("perfquery -E")[0].split("\n")
+            eCount += CounterErrors(perfQuery2)
+            perfQuery3 = node.command("perfquery -x")[0].split("\n")
+            eCount += CounterErrors(perfQuery3)
+
+            #Getting all the system GUIDs and verifying none of them are the same
+            ibGuids = node.command("ibnetdiscover")[0].split("\n")
+            guidList = []
+            for lines in ibGuids:
+                if "sysimgguid" in lines:
+                    guidTmp = lines.split("0x")
+                    guidList.append(guidTmp[-1])
+
+            #Initializing the conditions for the successful completion of fabric initialization
             topology_matches = False
             no_illegal_counters = False
             no_bad_guids = False
-            for line in contents:
-                if string in line:
-                    print("Topology from before and after test matches")
-                    topology_matches = True
-                if string2 in line:
-                    print("No illegal PM counters")
-                    no_illegal_counters = True
-                if string3 in line:
-                    print("No bad Guids found")
-                    no_bad_guids = True
+
+            #Verifying that the conditions have been met
+            if eCount == 0:
+                no_illegal_counters = True
+            if len(Stdout[0]) == 0:
+                topology_matches = True
+                print("Topology from before and after test matches")
+            if len(guidList) == len(set(guidList)):
+                no_bad_guids = True
             node.command('rm ' +topology_file)
 
-            f.close()
 
             # Remove the topology file
             print(topology_file)
@@ -78,16 +78,16 @@ def IBFabricInit():
             if not topology_matches:
                 comments += "*Topology before & after doesn't match"
             if not no_illegal_counters:
-                comments += "*Illegal PM counters found "
+                comments += "*Illegal PM counters found, {} in total".format(eCount)
             if not no_bad_guids:
                 comments += "*Bad GUIDs found"
 
-            return [False, comments] 
+            return [False, comments]
 
         else:
             print("{} is not currently active, running tests on other active nodes".format(node.ethif.id))
 
-        
+
 
 def sample_test1():
 
