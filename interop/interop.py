@@ -179,12 +179,8 @@ def validate_args(args, dictionary, logger):
         try:
             dictionary[key]
 
-        except KeyError:
-
-            # Fail
-            for dict_key,value in dictionary.items():
-                logger.debug("key: {} value{}".format(dict_key,value))
-            logger.error("{} is not a valid input.  Use {} -pt or {} -pg to print options".format(key,os.path.basename(__file__),os.path.basename(__file__)))
+        except KeyError as e:
+            sys.stderr.write("[{}] is not a valid argument, use {} -pt or {} -pt to print valid options\n".format(key,os.path.basename(__file__),os.path.basename(__file__)))
             return (-1)
 
     # Success
@@ -403,6 +399,8 @@ def main():
 
         # Validate argument and get list (if comma delimited list is given)
         arg_list = validate_args(args.group, GROUPS, logger)
+        if arg_list == -1:
+            return -1
 
         # Remove duplicate tests
         test_dict = {}
@@ -423,6 +421,8 @@ def main():
 
         # Validate argument and get list (if comma delimited list is given)
         arg_list = validate_args(args.test, TESTS,logger)
+        if arg_list == -1:
+            return -1
 
         # Create the list of tests
         tests = {}
