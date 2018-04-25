@@ -25,7 +25,6 @@ import traceback
 import testlib
 import testlib.validate
 from testlib.moduleloader import load_modules
-import testlib.classes.network as network
 import testlib.test
 
 
@@ -276,11 +275,6 @@ def run_subtests(tests, verbose):
                         sys.stdout = old_stdout
                     traceback.print_tb(e.__traceback__)
                     print(e)
-#        finally:
-#            if not verbose:
-        #with open(OUTPUT, 'a+') as f:
-        #    f.write("Testresults[],")
-
 
 
 def main():
@@ -329,6 +323,7 @@ def main():
 
     # Print network status
     if args.print_status:
+        import testlib.classes.network as network # takes about 2 seconds
         network.print_status()
         return 0
 
