@@ -161,8 +161,11 @@ def nodePairs(node1, node2, guid_list):
             print("Node1 ({}) correctly reported being the master node".format(node1.ethif.aliases[0]))
         elif "iberror: failed: query" in sminfo_output[0] and counter < 9:
             print("sminfo on node1 ({}) failed with error:{} Trying again...".format(node1.ethif.aliases[0],sminfo_output))
+            print("restarting SM....")
+            node1.command("sudo systemctl stop opensm")
             time.sleep(3)
-            print("checking that subnet manager is in fact turned on. SM state: {}".format(node1.sm.status()))
+            node1.command("sudo systemctl start opensm")
+            time.sleep(3)
             sminfo_output[0] = ""
         counter += 1
 
