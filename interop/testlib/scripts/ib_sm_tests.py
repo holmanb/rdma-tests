@@ -74,7 +74,9 @@ def test2():
             # run the test with those nodes
             print("running tests on nodes: ",
                   node1.ethif.aliases[0], " and ", node2.ethif.aliases[0])
-            nodePairs(node1, node2, netdiscover_guid_list)
+            return_value = nodePairs(node1, node2, netdiscover_guid_list)
+            if return_value[0] == False:
+                return[False, return_value[1]]
 
             # stopping the subnet managers on each node used
             node1.sm.stop()
@@ -129,7 +131,7 @@ def nodePairs(node1, node2, guid_list):
 
     # Verifying all nodes are present in saquery output
     compare_value = set(guid_list) & set(saquery_guid_list)
-    if compare_value != len(guid_list):
+    if len(compare_value) != len(guid_list):
         return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1.ethif.aliases[0])]
     else:
         print("Nodes were successfully verified and existing")
@@ -144,10 +146,6 @@ def nodePairs(node1, node2, guid_list):
     print("testing")
 
     # Start a SM on the second machine in the current pair
-
-# def test2():
-    # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
-
 
 Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
 Test2 = subtest.Subtest(test=test2, name="ib sm subtest2", number='2')
