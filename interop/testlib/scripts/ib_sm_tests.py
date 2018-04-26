@@ -143,8 +143,9 @@ def nodePairs(node1, node2, guid_list):
         sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
         if "SMINFO_MASTER" in sminfo_output[0]:
             print("Node1 ({}) correctly reported being the master node".format(node1.ethif.aliases[0]))
-        else:
+        elif "iberror: failed: query" in sminfo_output[0]:
             print("sminfo on node1 ({}) failed. Trying again...".format(node1.ethif.aliases[0]))
+            sminfo_output[0] = ""
         counter += 1
 
     if "SMINFO_MASTER" not in sminfo_output[0]:
