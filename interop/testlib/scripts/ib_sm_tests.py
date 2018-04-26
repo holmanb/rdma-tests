@@ -115,6 +115,14 @@ def nodePairs(node1, node2, guid_list):
         print("{} failed to start. Trying again: {}".format(
             node1.ethif.aliases[0], counter))
         counter += 1
+        if counter == 5:
+            return [False, "Subnet manager on node {} failed to start".format(node1.ethif.aliases[0])]
+
+    # wait 3 seconds for sm to start
+    print("Waiting for SM on {} to start".format(node1.ethif.aliases[0]))
+    time.sleep(3)
+
+    
 
     # run "saquery" on a node in the fabric
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
