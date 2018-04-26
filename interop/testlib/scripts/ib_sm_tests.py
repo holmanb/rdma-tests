@@ -83,7 +83,13 @@ def test2():
             node2.sm.stop()
             # Waiting a few seconds for SMs to stop
             time.sleep(3)
-            # TODO: verify those SMs are down
+            print("waiting for {} and {} sm to stop".format(node1.ethif.aliases[0], node2.ethif.aliases[0]))
+            # Verify those SMs are down
+            if node1.sm.status() == "active":
+                return [False, "{} subnet manager did not turn off!".format(node1.ethif.aliases[0])]
+            if node2.sm.status() == "active":
+                return [False, "{} subnet manager did not turn off!".format(node2.ethif.aliases[0])]
+
 
     return [True, "test 2 completed successfully"]
 
