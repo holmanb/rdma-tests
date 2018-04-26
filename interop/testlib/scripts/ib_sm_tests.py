@@ -144,7 +144,7 @@ def nodePairs(node1, node2, guid_list):
         if "SMINFO_MASTER" in sminfo_output[0]:
             print("Node1 ({}) correctly reported being the master node".format(node1.ethif.aliases[0]))
         elif "iberror: failed: query" in sminfo_output[0] and counter < 4:
-            print("sminfo on node1 ({}) failed with error:{} Trying again...".format(node1.ethif.aliases[0]),sminfo_output)
+            print("sminfo on node1 ({}) failed with error:{} Trying again...".format(node1.ethif.aliases[0],sminfo_output))
             sminfo_output[0] = ""
         counter += 1
 
