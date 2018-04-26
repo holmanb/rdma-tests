@@ -72,6 +72,7 @@ def test2():
             node2 = network.nodes[y]
 
             # run the test with those nodes
+            print("\n--------------------")
             print("running tests on nodes: ",
                   node1.ethif.aliases[0], " and ", node2.ethif.aliases[0])
             return_value = nodePairs(node1, node2, netdiscover_guid_list)
@@ -90,7 +91,6 @@ def test2():
             if node2.sm.status() == "active":
                 return [False, "{} subnet manager did not turn off!".format(node2.ethif.aliases[0])]
 
-            print("\n--------------------")
 
 
     return [True, "test 2 completed successfully"]
@@ -155,11 +155,11 @@ def nodePairs(node1, node2, guid_list):
     # using sminfo, verify that the running SM is the master
     sminfo_output = ["",""]
     counter = 0
-    while not sminfo_output[0] and counter < 5:
+    while not sminfo_output[0] and counter < 10:
         sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
         if "SMINFO_MASTER" in sminfo_output[0]:
             print("Node1 ({}) correctly reported being the master node".format(node1.ethif.aliases[0]))
-        elif "iberror: failed: query" in sminfo_output[0] and counter < 4:
+        elif "iberror: failed: query" in sminfo_output[0] and counter < 9:
             print("sminfo on node1 ({}) failed with error:{} Trying again...".format(node1.ethif.aliases[0],sminfo_output))
             time.sleep(1)
             print("checking that subnet manager is in fact turned on. SM state: {}".format(node1.sm.status()))
