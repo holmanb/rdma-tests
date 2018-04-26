@@ -130,7 +130,7 @@ def nodePairs(node1, node2, guid_list):
         return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1.ethif.aliases[0])]
     else:
         print("Nodes were successfully verified and existing")
-        
+
     del output
 
     # using sminfo, verify that the running SM is the master
@@ -140,6 +140,8 @@ def nodePairs(node1, node2, guid_list):
     else:
         print("Node1 ({}) correctly reported being the master node")
 
+    print("testing")
+    
     # Start a SM on the second machine in the current pair
 
 #def test2():
