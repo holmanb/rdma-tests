@@ -2,6 +2,7 @@ import testlib.test as Test
 import testlib.subtest as subtest
 import testlib.classes.network as network
 import re
+import time
 
 """
 Test 1: Basic sweep test 
@@ -33,6 +34,9 @@ def test1():
     for node in network.nodes:
         if node.sm.status() == 'active':
             node.sm.stop()
+
+    #wait a few seconds for all SMs to stop
+    time.sleep(3)
 
     # verify all SMs are disabled
     print("verifying status of all nodes:")
@@ -72,10 +76,28 @@ def test2():
             #stopping the subnet managers on each node used
             node1.sm.stop()
             node2.sm.stop()
+            # Waiting a few seconds for SMs to stop
+            time.sleep(3)
+            # TODO: verify those SMs are down
 
     return [True, "test 2 completed successfully"]
 
 def nodePairs(node1, node2, guid_list):
+    #get node1 and node2 guid and lid
+    node1_ibstat_output = node1.command("sudo ibstat")
+    node1_guid = re.search( r"Node GUID.*0x(.*)", node1_ibstat_output[0])
+    node1_lid = re.search( r"SM lid: (.*)", node1_ibstat_output[0])
+
+    print(node1_guid)
+    print(node1_lid)
+
+    node2_ibstat_output = node2.command("sudo ibstat")
+    node2_guid = re.search( r"Node GUID.*0x(.*)", node2_ibstat_output[0])
+    node2_lid = re.search( r"SM lid:(.*)", node2_ibstat_output[0])
+
+    print(node2_guid)
+    print(node2_lid)
+
     print("starting", node1.ethif.aliases[0], " subnet manager")
     # if starting fails try again up to 5 times
     counter = 0
@@ -115,7 +137,9 @@ def nodePairs(node1, node2, guid_list):
 
     del output
 
-    # using the ibdiagnet tool with the -r option, verify that the running SM is the master
+    # using sminfo, verify that the running SM is the master
+    sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
+    
 
     # Start a SM on the second machine in the current pair
 
