@@ -125,10 +125,6 @@ def nodePairs(node1, node2, guid_list):
 
     saquery_guid_list = re.findall(r".*node_guid.*0x(.*)", output[0])
 
-    # for node in network.nodes:
-    #     if(node.ethif):
-    #         ethernet_aliases.append(node.ethif.aliases[0])
-
     print("testing")
 
     # Verifying all nodes are present in saquery output
@@ -137,8 +133,6 @@ def nodePairs(node1, node2, guid_list):
         return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1.ethif.aliases[0])]
     else:
         print("Nodes were successfully verified and existing")
-
-    del output
 
     # using sminfo, verify that the running SM is the master
     sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
