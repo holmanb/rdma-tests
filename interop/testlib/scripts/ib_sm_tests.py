@@ -101,8 +101,6 @@ def nodePairs(node1, node2, guid_list):
         counter += 1
 
     saquery_guid_list = re.findall( r".*node_guid.*0x(.*)", output[0])
-    if saquery_guid_list:
-        print(saquery_guid_list)
 
     # for node in network.nodes:
     #     if(node.ethif):
