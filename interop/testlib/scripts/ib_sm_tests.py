@@ -90,6 +90,8 @@ def test2():
             if node2.sm.status() == "active":
                 return [False, "{} subnet manager did not turn off!".format(node2.ethif.aliases[0])]
 
+            print("\n--------------------")
+
 
     return [True, "test 2 completed successfully"]
 
@@ -166,7 +168,6 @@ def nodePairs(node1, node2, guid_list):
     if "SMINFO_MASTER" not in sminfo_output[0]:
         return [False, "Node1({}) is not reporting to be the master node. Output from sminfo: {}".format(node1.ethif.aliases[0],sminfo_output)]
         
-    print("-------------------------")
     return [True, "Node pair successfully tested"]
 
     # Start a SM on the second machine in the current pair
