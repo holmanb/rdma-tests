@@ -18,6 +18,7 @@ def CounterErrors(query):
 def IBFabricInit():
     topology_file = '/tmp/topology'
     eCount = 0
+    nodeSuccess = []
     for node in network.nodes:
         if node.is_up():
             if(node.sm.status() == "inactive"):
@@ -33,7 +34,6 @@ def IBFabricInit():
 
             #Getting the port counters(to check for bad one) from perfquery to mimic ibdiagnet
             perfQuery1 = node.command("perfquery -a")[0].split("\n")
-            print(perfQuery1)
             eCount += CounterErrors(perfQuery1)
             perfQuery2 = node.command("perfquery -E")[0].split("\n")
             eCount += CounterErrors(perfQuery2)
@@ -56,11 +56,13 @@ def IBFabricInit():
             #Verifying that the conditions have been met
             if eCount == 0:
                 no_illegal_counters = True
+                print("No illegal PM counters found")
             if len(Stdout[0]) == 0:
                 topology_matches = True
                 print("Topology from before and after test matches")
             if len(guidList) == len(set(guidList)):
                 no_bad_guids = True
+                print("No bad GUIDs were found")
             node.command('rm ' +topology_file)
 
 
@@ -71,22 +73,27 @@ def IBFabricInit():
 
             # If matches, then true
             if topology_matches and no_illegal_counters and no_bad_guids:
-                return [True, ""]
+                nodeSuccess.append(True)
+            else:
+                nodeSuccess.append(False)
 
             # Reasonable comments printed on failure
             comments = ""
             if not topology_matches:
-                comments += "*Topology before & after doesn't match"
+                comments += "*Topology before & after doesn't match on {}".format(node.ethif.id)
             if not no_illegal_counters:
                 comments += "*Illegal PM counters found, {} in total".format(eCount)
             if not no_bad_guids:
-                comments += "*Bad GUIDs found"
+                comments += "*Bad GUIDs found on {}".format(node.ethif.id)
 
-            return [False, comments]
 
         else:
             print("{} is not currently active, running tests on other active nodes".format(node.ethif.id))
 
+    if all(nodeSuccess) == True:
+        return [True, comments]
+    else:
+        return [False, comments]
 
 
 def sample_test1():
