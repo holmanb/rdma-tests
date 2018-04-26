@@ -88,8 +88,8 @@ def nodePairs(node1, node2, guid_list):
     node1_guid = re.search( r"Node GUID.*0x(.*)", node1_ibstat_output[0])
     node1_lid = re.search( r"SM lid: (.*)", node1_ibstat_output[0])
 
-    print(node1_guid)
-    print(node1_lid)
+    print(node1_guid[0])
+    print(node1_lid[0])
 
     node2_ibstat_output = node2.command("sudo ibstat")
     node2_guid = re.search( r"Node GUID.*0x(.*)", node2_ibstat_output[0])
