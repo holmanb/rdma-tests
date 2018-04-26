@@ -47,11 +47,9 @@ def test1():
     return [True, "All SMs were succesfully disabled"]
 
 def test2():
+    # Getting a base list of all the guids on the network
     netdisocver_output = network.nodes[0].command("sudo ibnetdiscover")
     netdiscover_guid_list = re.findall( r"sysimgguid=0x(.*)", netdisocver_output[0])
-
-    print(netdiscover_guid_list)
-    print()
 
     #saquery_output = network.nodes[0].command("sudo saquery")
     #saquery_sys_guid_list = re.findall( r"sys_guid.*0x(.*)", netdisocver_output[0])
@@ -74,6 +72,8 @@ def test2():
             #stopping the subnet managers on each node used
             node1.sm.stop()
             node2.sm.stop()
+
+    return [True, "test 2 completed successfully"]
 
 def nodePairs(node1, node2, guid_list):
     print("starting", node1.ethif.aliases[0], " subnet manager")
@@ -111,6 +111,9 @@ def nodePairs(node1, node2, guid_list):
     print()
 
     # Verifying all nodes are present in saquery output
+    compare_value = set(guid_list) & set(saquery_guid_list)
+    if compare_value != len(guid_list):
+        return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1.ethif.aliases[0])]
 
     del output
 
