@@ -138,6 +138,7 @@ def nodePairs(node1, node2, guid_list):
 
     # using sminfo, verify that the running SM is the master
     sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
+    print(sminfo_output[0])
     if "SMINFO_MASTER" not in sminfo_output[0]:
         return [False, "Node1({}) is not reporting to be the master node".format(node1.ethif.aliases[0])]
     else:
