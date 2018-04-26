@@ -1,3 +1,4 @@
 *.log
 *.pyc
 */*.pyc
+.vscode/settings.json
