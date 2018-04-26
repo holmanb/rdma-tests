@@ -16,7 +16,7 @@ import threading
 # Inability to establish connections between endpoints
 
 # Magic number defines the number of times each individual node is tested as the server for
-# each perftest
+# each perftest, so the total number of times the test is run is NUM_TIMES * 2
 NUM_TIMES = 4
 
 def swap_nodes(node1, node2, test_function):
@@ -89,8 +89,8 @@ def get_interesting_output(output):
     return o
 
 
-def perftest(command_string):
-    """
+def perftest(command):
+    """ This generic test runs the perftest commands
     """
 
     # Ensure that a subnet manager is running
@@ -101,19 +101,19 @@ def perftest(command_string):
 
     def read_bw(server, client,default_port=18515):
 
-        # need to figure out how to get device name 
-        device_server = get_ib_dev_name(server)
-        device_client = get_ib_dev_name(client)
-
         # need to figure out how to check if default port is active 
         available_port = get_open_port(server, default_port)
 
-        # check to see if perfest is in use - wait 500 ms and try again if so
-        cmd_server = command_string.format(device_server, available_port, "")
-        cmd_client = command_string.format(device_client, available_port, server.ibif.ip)
+        # Get the device names 
+        device_server = get_ib_dev_name(server)
+        device_client = get_ib_dev_name(client)
+
+        # Generage the command
+        cmd_server = command.format(device_server, available_port, "")
+        cmd_client = command.format(device_client, available_port, server.ibif.ip)
 
         def cmd(func, command, result, key):
-            """ Used for getting returned output from the threads
+            """ The result dictionary is used for getting returned output from the threads
             """
             result[key] = func(command)
 
@@ -139,15 +139,21 @@ def perftest(command_string):
 
             # Output the results  
             print("Printing perftest results")
+
+            # Server 
             out = results['server']
             server_out = get_interesting_output(out)
             print("server: {}".format(server.ethif.ip))
+
+            # Client
             out = results['client']
             client_out = get_interesting_output(out)
             print("client: {}".format(client.ethif.ip))
             raise KeyboardInterrupt
 
         print("Printing perftest results")
+
+        # Client
         out = results['client']
         print("client: {}".format(client.ethif.ip))
         client_out = get_interesting_output(out)
@@ -165,6 +171,7 @@ def perftest(command_string):
             get_interesting_output(out)
             raise KeyboardInterrupt
 
+        # Server
         out = results['server']
         print("server: {}".format(server.ethif.ip))
         server_out = get_interesting_output(out)
@@ -174,10 +181,17 @@ def perftest(command_string):
 
     return [True, str(swap_nodes(network.nodes[1],network.nodes[2],read_bw))]
 
-command = "ib_read_bw -d {} -i 1 -p {} -s 1 -n 25000 -m 2048 {} -F"
 
-subtest1 = subtest.Subtest(test=perftest, name="Small RDMA Send", number='1',arg=command)
+small_test= "-d {} -i 1 -p {} -s 1 -n 25000 -m 2048 {} -F"
+large_test= "-d {} -i 1 -p {} -s 1000000 -n 300 -m 2048 {} -F"
 
-subtests=[subtest1]
+subtests=[]
+subtests.append(subtest.Subtest(test=perftest, name="Small RDMA Read", number='1',arg='ib_read_bw '+small_test))
+subtests.append(subtest.Subtest(test=perftest, name="Large RDMA Read", number='2',arg='ib_read_bw '+large_test))
+subtests.append(subtest.Subtest(test=perftest, name="Small RDMA Write", number='3',arg='ib_write_bw '+small_test))
+subtests.append(subtest.Subtest(test=perftest, name="Large RDMA Write", number='4',arg='ib_write_bw '+large_test))
+subtests.append(subtest.Subtest(test=perftest, name="Small RDMA Send", number='5',arg='ib_send_bw '+small_test))
+subtests.append(subtest.Subtest(test=perftest, name="Large RDMA Send", number='6',arg='ib_send_bw '+large_test))
+
 IBPerftest = test.Test(tests=subtests, description="Tests core RDMA operations across a network, validates operation of endpoints at the RDMA level.")
 
