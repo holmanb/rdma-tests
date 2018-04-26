@@ -86,17 +86,11 @@ def nodePairs(node1, node2, guid_list):
     #get node1 and node2 guid and lid
     node1_ibstat_output = node1.command("sudo ibstat")
     node1_guid = str(re.search( r"Node GUID.*0x(.*)", node1_ibstat_output[0])[1]).strip()
-    node1_lid = str(re.search( r"SM lid: (.*)", node1_ibstat_output[0])[1]).strip()
-
-    print(node1_guid)
-    print(node1_lid)
+    node1_lid = str(re.search( r"SM lid:(.*)", node1_ibstat_output[0])[1]).strip()
 
     node2_ibstat_output = node2.command("sudo ibstat")
     node2_guid = str(re.search( r"Node GUID.*0x(.*)", node2_ibstat_output[0])[1]).strip()
     node2_lid = str(re.search( r"SM lid:(.*)", node2_ibstat_output[0])[1]).strip()
-
-    print(node2_guid)
-    print(node2_lid)
 
     print("starting", node1.ethif.aliases[0], " subnet manager")
     # if starting fails try again up to 5 times
@@ -139,7 +133,10 @@ def nodePairs(node1, node2, guid_list):
 
     # using sminfo, verify that the running SM is the master
     sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
-    
+    if "SMINFO_MASTER" not in sminfo_output[0]:
+        return [False, "Node1({}) is not reporting to be the master node".format(node1.ethif.aliases[0])]
+    else
+        print("Node1 ({}) correctly reported being the master node")
 
     # Start a SM on the second machine in the current pair
 
