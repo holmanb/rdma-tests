@@ -85,19 +85,15 @@ def test2():
 def nodePairs(node1, node2, guid_list):
     #get node1 and node2 guid and lid
     node1_ibstat_output = node1.command("sudo ibstat")
-    node1_guid = re.search( r"Node GUID.*0x(.*)", node1_ibstat_output[0])[1]
-    node1_guid = node1_guid.strip
-    node1_lid = re.search( r"SM lid: (.*)", node1_ibstat_output[0])[1]
-    node1_lid = node1_lid.strip
+    node1_guid = str(re.search( r"Node GUID.*0x(.*)", node1_ibstat_output[0])[1]).strip
+    node1_lid = str(re.search( r"SM lid: (.*)", node1_ibstat_output[0])[1]).strip
 
     print(node1_guid)
     print(node1_lid)
 
     node2_ibstat_output = node2.command("sudo ibstat")
-    node2_guid = re.search( r"Node GUID.*0x(.*)", node2_ibstat_output[0])[1]
-    node2_guid = node2_guid.strip
-    node2_lid = re.search( r"SM lid:(.*)", node2_ibstat_output[0])[1]
-    node2_lid = node2_lid.strip
+    node2_guid = str(re.search( r"Node GUID.*0x(.*)", node2_ibstat_output[0])[1]).strip
+    node2_lid = str(re.search( r"SM lid:(.*)", node2_ibstat_output[0])[1]).strip
 
     print(node2_guid)
     print(node2_lid)
