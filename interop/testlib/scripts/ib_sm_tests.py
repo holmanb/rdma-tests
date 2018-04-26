@@ -23,9 +23,9 @@ master and configures the cluster accordingly.
 """
 
 
-# In this test, all active SMs on the fabric which are going to be tested, must be from the same 
+# In this test, all active SMs on the fabric which are going to be tested, must be from the same
 # vendor. They will be tested pairwise; two at a time.
-    
+
 def test1():
     network.load_nodes()
 
@@ -35,7 +35,7 @@ def test1():
         if node.sm.status() == 'active':
             node.sm.stop()
 
-    #wait a few seconds for all SMs to stop
+    # wait a few seconds for all SMs to stop
     time.sleep(3)
 
     # verify all SMs are disabled
@@ -50,30 +50,33 @@ def test1():
 
     return [True, "All SMs were succesfully disabled"]
 
+
 def test2():
     # Getting a base list of all the guids on the network
     netdisocver_output = network.nodes[0].command("sudo ibnetdiscover")
-    netdiscover_guid_list = re.findall( r"sysimgguid=0x(.*)", netdisocver_output[0])
+    netdiscover_guid_list = re.findall(
+        r"sysimgguid=0x(.*)", netdisocver_output[0])
 
     #saquery_output = network.nodes[0].command("sudo saquery")
     #saquery_sys_guid_list = re.findall( r"sys_guid.*0x(.*)", netdisocver_output[0])
     #saquery_node_guid_list = re.findall( r"node_guid.*0x(.*)", netdisocver_output[0])
     #saquery_port_guid_list = re.findall( r"port_guid.*0x(.*)", netdisocver_output[0])
 
-    #gets two nodes to send to test2
+    # gets two nodes to send to test2
     for x in range(0, len(network.nodes)):
         for y in range(0, len(network.nodes)):
-            #if the nodes are identical, skip this iteration
+            # if the nodes are identical, skip this iteration
             if y == x:
                 continue
             node1 = network.nodes[x]
             node2 = network.nodes[y]
 
-            #run the test with those nodes
-            print("running tests on nodes: ",node1.ethif.aliases[0]," and ",node2.ethif.aliases[0])
+            # run the test with those nodes
+            print("running tests on nodes: ",
+                  node1.ethif.aliases[0], " and ", node2.ethif.aliases[0])
             nodePairs(node1, node2, netdiscover_guid_list)
 
-            #stopping the subnet managers on each node used
+            # stopping the subnet managers on each node used
             node1.sm.stop()
             node2.sm.stop()
             # Waiting a few seconds for SMs to stop
@@ -82,29 +85,33 @@ def test2():
 
     return [True, "test 2 completed successfully"]
 
+
 def nodePairs(node1, node2, guid_list):
-    #get node1 and node2 guid and lid
+    # get node1 and node2 guid and lid
     node1_ibstat_output = node1.command("sudo ibstat")
-    node1_guid = str(re.search( r"Node GUID.*0x(.*)", node1_ibstat_output[0])[1]).strip()
-    node1_lid = str(re.search( r"SM lid:(.*)", node1_ibstat_output[0])[1]).strip()
+    node1_guid = str(re.search(r"Node GUID.*0x(.*)",
+                               node1_ibstat_output[0])[1]).strip()
+    node1_lid = str(
+        re.search(r"SM lid:(.*)", node1_ibstat_output[0])[1]).strip()
 
     node2_ibstat_output = node2.command("sudo ibstat")
-    node2_guid = str(re.search( r"Node GUID.*0x(.*)", node2_ibstat_output[0])[1]).strip()
-    node2_lid = str(re.search( r"SM lid:(.*)", node2_ibstat_output[0])[1]).strip()
+    node2_guid = str(re.search(r"Node GUID.*0x(.*)",
+                               node2_ibstat_output[0])[1]).strip()
+    node2_lid = str(
+        re.search(r"SM lid:(.*)", node2_ibstat_output[0])[1]).strip()
 
     print("starting", node1.ethif.aliases[0], " subnet manager")
     # if starting fails try again up to 5 times
     counter = 0
     while not node1.sm.start() and counter < 5:
-        print("{} failed to start. Trying again: {}".format(node1.ethif.aliases[0],counter))
+        print("{} failed to start. Trying again: {}".format(
+            node1.ethif.aliases[0], counter))
         counter += 1
 
-    
     # run "saquery" on a node in the fabric
     #output = node1.command("sudo saquery | grep \"NodeDescription\" | sed 's/.*\.\.\.//' | sed 's/\s.*$//'")
     print("Running saquery on ", node1.ethif.aliases[0])
     output = node1.command("sudo saquery -t 5000")
-    ## verify that all nodes in the cluster are presetn in the output
 
     # was not getting output consistently from saquery so checking again
     counter = 0
@@ -116,7 +123,7 @@ def nodePairs(node1, node2, guid_list):
         output = node1.command("sudo saquery -t 5000")
         counter += 1
 
-    saquery_guid_list = re.findall( r".*node_guid.*0x(.*)", output[0])
+    saquery_guid_list = re.findall(r".*node_guid.*0x(.*)", output[0])
 
     # for node in network.nodes:
     #     if(node.ethif):
@@ -124,7 +131,7 @@ def nodePairs(node1, node2, guid_list):
 
     print()
 
-    # Verifying all nodes are present in saquery output
+    # Verifying all nodes are present inß saquery output
     compare_value = set(guid_list) & set(saquery_guid_list)
     if compare_value != len(guid_list):
         return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1.ethif.aliases[0])]
@@ -141,13 +148,13 @@ def nodePairs(node1, node2, guid_list):
         print("Node1 ({}) correctly reported being the master node")
 
     print("testing")
-    
+
     # Start a SM on the second machine in the current pair
 
-#def test2():
+# def test2():
     # Verify that the SMs behave according to the SM priority rules. Use "# ibdiagnet -r" again.
+
 
 Test1 = subtest.Subtest(test=test1, name="ib sm subtest 1", number='1')
 Test2 = subtest.Subtest(test=test2, name="ib sm subtest2", number='2')
 Table5 = Test.Test(tests=[Test1, Test2],  description="ib sm test")
-
