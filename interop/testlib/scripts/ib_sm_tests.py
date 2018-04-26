@@ -127,7 +127,7 @@ def nodePairs(node1, node2, guid_list):
 
     saquery_guid_list = re.findall(r".*node_guid.*0x(.*)", output[0])
 
-    print("testing")
+    print()
 
     # Verifying all nodes are present in saquery output
     compare_value = set(guid_list) & set(saquery_guid_list)
@@ -142,9 +142,10 @@ def nodePairs(node1, node2, guid_list):
     if "SMINFO_MASTER" not in sminfo_output[0]:
         return [False, "Node1({}) is not reporting to be the master node".format(node1.ethif.aliases[0])]
     else:
-        print("Node1 ({}) correctly reported being the master node")
+        print("Node1 ({}) correctly reported being the master node".format(node1.ethif.aliases[0]))
 
-    print("testing")
+
+    return [True, "Node pair successfully tested"]
 
     # Start a SM on the second machine in the current pair
 
