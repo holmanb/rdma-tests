@@ -47,6 +47,17 @@ def test1():
     return [True, "All SMs were succesfully disabled"]
 
 def test2():
+    netdisocver_output = network.nodes[0].command("sudo ibnetdiscover")
+    netdiscover_guid_list = re.findall( r"sysimgguid=0x(.*)", netdisocver_output[0])
+
+    print(netdiscover_guid_list)
+    print()
+
+    #saquery_output = network.nodes[0].command("sudo saquery")
+    #saquery_sys_guid_list = re.findall( r"sys_guid.*0x(.*)", netdisocver_output[0])
+    #saquery_node_guid_list = re.findall( r"node_guid.*0x(.*)", netdisocver_output[0])
+    #saquery_port_guid_list = re.findall( r"port_guid.*0x(.*)", netdisocver_output[0])
+
     #gets two nodes to send to test2
     for x in range(0, len(network.nodes)):
         for y in range(0, len(network.nodes)):
@@ -58,13 +69,13 @@ def test2():
 
             #run the test with those nodes
             print("running tests on nodes: ",node1.ethif.aliases[0]," and ",node2.ethif.aliases[0])
-            nodePairs(node1, node2)
+            nodePairs(node1, node2, netdiscover_guid_list)
 
             #stopping the subnet managers on each node used
             node1.sm.stop()
             node2.sm.stop()
 
-def nodePairs(node1, node2):
+def nodePairs(node1, node2, guid_list):
     print("starting", node1.ethif.aliases[0], " subnet manager")
     # if starting fails try again up to 5 times
     counter = 0
@@ -89,9 +100,9 @@ def nodePairs(node1, node2):
         output = node1.command("sudo saquery -t 5000")
         counter += 1
 
-    guid_list = re.findall( r".*node_guid.*0x(.*)", output[0])
-    if guid_list:
-        print(guid_list)
+    saquery_guid_list = re.findall( r".*node_guid.*0x(.*)", output[0])
+    if saquery_guid_list:
+        print(saquery_guid_list)
 
     # for node in network.nodes:
     #     if(node.ethif):
