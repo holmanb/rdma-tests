@@ -129,9 +129,9 @@ def nodePairs(node1, node2, guid_list):
     #     if(node.ethif):
     #         ethernet_aliases.append(node.ethif.aliases[0])
 
-    print()
+    print("testing")
 
-    # Verifying all nodes are present inß saquery output
+    # Verifying all nodes are present in saquery output
     compare_value = set(guid_list) & set(saquery_guid_list)
     if compare_value != len(guid_list):
         return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1.ethif.aliases[0])]
