@@ -1,6 +1,7 @@
 import testlib.test as test
 import testlib.subtest as subtest
 import testlib.classes.network as network
+import testlib.streamctl as streamctl
 
 import socket
 import errno
@@ -193,5 +194,11 @@ subtests.append(subtest.Subtest(test=perftest, name="Large RDMA Write", number='
 subtests.append(subtest.Subtest(test=perftest, name="Small RDMA Send", number='5',arg='ib_send_bw '+small_test))
 subtests.append(subtest.Subtest(test=perftest, name="Large RDMA Send", number='6',arg='ib_send_bw '+large_test))
 
+IBPerftest = test.Test(tests=subtests, description="Tests core RDMA operations across a network, validates operation of endpoints at the RDMA level.")
+
+
+def stress_test():
+    pass
+subtest=(subtest.Subtest(test=perftest, name="Large RDMA Send", number='6',arg='ib_send_bw '+large_test))
 IBPerftest = test.Test(tests=subtests, description="Tests core RDMA operations across a network, validates operation of endpoints at the RDMA level.")
 
