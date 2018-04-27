@@ -20,12 +20,14 @@ import pkgutil
 import importlib
 import datetime
 import traceback
+import subprocess
 
 # User Defined Modules 
 import testlib
 import testlib.validate
 from testlib.moduleloader import load_modules
 import testlib.test
+import testlib.streamctl as streamctl
 
 
 # Save tty settings
@@ -152,7 +154,7 @@ def print_tests(TESTS):
 
 
 def print_groups(GROUPS):
-    """ Prints formatted groups available for testing 
+    """ Prints formatted groups avail as streamctlable for testing 
     """
     # Printing groups
     print("Printing available groups...\n")
@@ -244,12 +246,14 @@ def run_subtests(tests, verbose):
 
                             # Run the test
                             if not verbose:
-                                sys.stdout = f
+                                streamctl.stdout.off()
+                                #sys.stdout = f
                             output = subtest.run()
 
                             # Turn off printing 
                             if not verbose:
-                                sys.stdout = old_stdout
+                                streamctl.stdout.on()
+                                #sys.stdout = old_stdout
 
                             # Formatting stdout and writing to csv
                             str_print = "\t{} | {} | {} |  {} ".format(r_pad(subtest.number, 5), r_pad(subtest.name, 25), 'Passed' if output["success"] else 'Failed', output["comments"])
@@ -430,6 +434,13 @@ def main():
 
 
 if __name__ == "__main__":
+    # Saving off the tty settings
+    stty = ""
+    with subprocess.Popen(["stty","-a"], stdout=subprocess.PIPE) as proc:
+        stty = proc.stdout.read().decode("utf-8")
+    stty=stty.split()
+    back_index = stty.index('erase')
+    back_char = stty[back_index + 2].strip(';')
     try:
         main()
         exit()
@@ -438,4 +449,5 @@ if __name__ == "__main__":
     finally:
         os.system('stty `cat ~/.stty`')
         os.system('stty echo')
+        os.system('stty erase {}'.format(back_char))
 
