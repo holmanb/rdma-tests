@@ -102,13 +102,13 @@ def nodePairs(node1, node2, guid_list):
     node1_guid = str(re.search(r"Node GUID.*0x(.*)",
                                node1_ibstat_output[0])[1]).strip()
     node1_lid = str(
-        re.search(r"SM lid:(.*)", node1_ibstat_output[0])[1]).strip()
+        re.search(r"Base lid:(.*)", node1_ibstat_output[0])[1]).strip()
 
     node2_ibstat_output = node2.command("sudo ibstat")
     node2_guid = str(re.search(r"Node GUID.*0x(.*)",
                                node2_ibstat_output[0])[1]).strip()
     node2_lid = str(
-        re.search(r"SM lid:(.*)", node2_ibstat_output[0])[1]).strip()
+        re.search(r"Base lid:(.*)", node2_ibstat_output[0])[1]).strip()
 
     print("starting", node1.ethif.aliases[0], " subnet manager")
     # if starting fails try again up to 5 times
