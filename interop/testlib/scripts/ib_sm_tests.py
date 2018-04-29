@@ -84,7 +84,7 @@ def test2():
             node2.sm.stop()
             # Waiting a few seconds for SMs to stop
             print("waiting for {} and {} sm to stop".format(node1.ethif.aliases[0], node2.ethif.aliases[0]))
-            time.sleep(3)
+            time.sleep(2)
             # Verify those SMs are down
             if node1.sm.status() == "active":
                 return [False, "{} subnet manager did not turn off!".format(node1.ethif.aliases[0])]
@@ -122,7 +122,7 @@ def nodePairs(node1, node2, guid_list):
 
     # wait 3 seconds for sm to start
     print("Waiting for SM on {} to start".format(node1.ethif.aliases[0]))
-    time.sleep(3)
+    time.sleep(2)
 
     
 
