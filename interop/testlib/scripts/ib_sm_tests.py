@@ -36,7 +36,7 @@ def test1():
             node.sm.stop()
 
     # wait a few seconds for all SMs to stop
-    time.sleep(5)
+    time.sleep(2)
 
     # verify all SMs are disabled
     print("verifying status of all nodes:")
@@ -84,7 +84,7 @@ def test2():
             node2.sm.stop()
             # Waiting a few seconds for SMs to stop
             print("waiting for {} and {} sm to stop".format(node1.ethif.aliases[0], node2.ethif.aliases[0]))
-            time.sleep(5)
+            time.sleep(3)
             # Verify those SMs are down
             if node1.sm.status() == "active":
                 return [False, "{} subnet manager did not turn off!".format(node1.ethif.aliases[0])]
@@ -122,7 +122,7 @@ def nodePairs(node1, node2, guid_list):
 
     # wait 3 seconds for sm to start
     print("Waiting for SM on {} to start".format(node1.ethif.aliases[0]))
-    time.sleep(5)
+    time.sleep(3)
 
     
 
@@ -153,24 +153,12 @@ def nodePairs(node1, node2, guid_list):
 
     print("running sminfo on {} to check if it's master".format(node1.ethif.aliases[0]))
     # using sminfo, verify that the running SM is the master
-    sminfo_output = ["",""]
+    sminfo_output = node1.command(sminfo_command)
     counter = 0
-    while not sminfo_output[0] and counter < 10:
-        sminfo_command = "sudo sminfo -L {}".format(node1_lid)
-        sminfo_output = node1.command(sminfo_command)
-        if "SMINFO_MASTER" in sminfo_output[0]:
-            print("Node1 ({}) correctly reported being the master node".format(node1.ethif.aliases[0]))
-        elif "iberror: failed: query" in sminfo_output[0] and counter < 9:
-            print("sminfo on node1 ({}) failed command: ({}) with error:{} Trying again...".format(node1.ethif.aliases[0], sminfo_command, sminfo_output))
-            print("restarting SM....")
-            node1.command("sudo systemctl stop opensm")
-            time.sleep(5)
-            node1.command("sudo systemctl start opensm")
-            time.sleep(5)
-            sminfo_output[0] = ""
-        counter += 1
 
-    if "SMINFO_MASTER" not in sminfo_output[0]:
+    if "SMINFO_MASTER" in sminfo_output[0]:
+        print("Node1 ({}) correctly reported being the master node".format(node1.ethif.aliases[0]))
+    else:
         return [False, "Node1({}) is not reporting to be the master node. Output from sminfo: {}".format(node1.ethif.aliases[0],sminfo_output)]
         
     return [True, "Node pair successfully tested"]
