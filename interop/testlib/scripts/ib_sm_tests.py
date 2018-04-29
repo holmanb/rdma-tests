@@ -156,11 +156,12 @@ def nodePairs(node1, node2, guid_list):
     sminfo_output = ["",""]
     counter = 0
     while not sminfo_output[0] and counter < 10:
-        sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
+        sminfo_command = "sudo sminfo -L {}".format(node1_lid)
+        sminfo_output = node1.command(sminfo_command)
         if "SMINFO_MASTER" in sminfo_output[0]:
             print("Node1 ({}) correctly reported being the master node".format(node1.ethif.aliases[0]))
         elif "iberror: failed: query" in sminfo_output[0] and counter < 9:
-            print("sminfo on node1 ({}) failed with error:{} Trying again...".format(node1.ethif.aliases[0],sminfo_output))
+            print("sminfo on node1 ({}) failed command: ({}) with error:{} Trying again...".format(node1.ethif.aliases[0], sminfo_command, sminfo_output))
             print("restarting SM....")
             node1.command("sudo systemctl stop opensm")
             time.sleep(5)
