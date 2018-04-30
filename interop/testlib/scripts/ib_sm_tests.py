@@ -71,8 +71,8 @@ def masterTest():
                     priority_scheme = "{} priority = 10. {} priority = 10".format(node1_name, node2_name)
 
                 # run the tests with the node pair
-                title_text = " Node Pair: {} and {}".format(node1_name, node2_name)
-                print("\n+{:-<50}+\n|{: <50}|\n+{:-<50}+".format("", title_text, ""))
+                title_text = " Node Pair: Node 1 = {} and Node 2 = {}".format(node1_name, node2_name)
+                print("\n+{:-<75}+\n|{: <75}|\n+{:-<75}+".format("", title_text, ""))
                 #run test 1
                 print("Starting test 1 with priorities: {}".format(priority_scheme))
                 test1_return_value = test1()
