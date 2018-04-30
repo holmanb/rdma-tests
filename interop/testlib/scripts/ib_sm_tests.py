@@ -209,6 +209,9 @@ def nodePairs(node1, node2, guid_list):
     else:
         return [False, "Node priority was not detected correctly:\n {} priority = {}\n{} priority = {}".format(node1_name, node1_priority, node2_name, node2_priority)]
 
+
+    return [True, "Successfully tested node pair"]
+
         
 
 
