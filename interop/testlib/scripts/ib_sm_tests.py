@@ -54,20 +54,20 @@ def masterTest():
             for priority_case in range(0, 2):
                 # node1 has higher priority than node2
                 if priority_case == 0:
-                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 2/g' /etc/opensm/opensm.conf")
-                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 1/g' /etc/opensm/opensm.conf")
+                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 11/g' /etc/opensm/opensm.conf")
+                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 10/g' /etc/opensm/opensm.conf")
                     priority_scheme = "{} priority = 2. {} priority = 1".format(node1_name, node2_name)
 
                 # node2 has higher priority than node1
                 elif priority_case == 1:
-                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 1/g' /etc/opensm/opensm.conf")
-                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 2/g' /etc/opensm/opensm.conf")
+                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 10/g' /etc/opensm/opensm.conf")
+                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 11/g' /etc/opensm/opensm.conf")
                     priority_scheme = "{} priority = 1. {} priority = 2".format(node1_name, node2_name)
 
                 # node1 and node2 have same priority
                 elif priority_case == 2:
-                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 1/g' /etc/opensm/opensm.conf")
-                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 1/g' /etc/opensm/opensm.conf")
+                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 10/g' /etc/opensm/opensm.conf")
+                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 10/g' /etc/opensm/opensm.conf")
                     priority_scheme = "{} priority = 1. {} priority = 1".format(node1_name, node2_name)
 
                 # run the tests with the node pair
