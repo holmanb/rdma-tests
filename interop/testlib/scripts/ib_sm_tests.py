@@ -296,7 +296,7 @@ def test3(node1, node2, guid_list):
     print("Shutting down master SM ({})...".format(node1_name))
     node1.sm.stop()
     # Wait three seconds for SM to stop
-    time.sleep(10)
+    time.sleep(3)
     #Verify SM is stopped
     if node1.sm.status() == 'active':
         return [False, "Step7: Node 1 ({}) failed to shutdown".format(node1_name)]
@@ -305,6 +305,11 @@ def test3(node1, node2, guid_list):
 
     # Verify the other active SM goes into the master state using sminfo again.
     sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
+
+    counter = 0
+    while "SMINFO_MASTER" not in sminfo_output[0] and counter < 60:
+        time.sleep(1)
+        sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
 
     if "SMINFO_MASTER" in sminfo_output[0]:
         print("Node2 ({}) correctly reporting now being the master node".format(node2_name))
