@@ -72,7 +72,7 @@ def masterTest():
 
                 # run the tests with the node pair
                 title_text = " Node Pair: {} and {}".format(node1_name, node2_name)
-                print("+{:-<50}+\n|{: <50}|\n+{:-<50}+".format("", title_text, ""))
+                print("\n+{:-<50}+\n|{: <50}|\n+{:-<50}+".format("", title_text, ""))
                 #run test 1
                 print("Starting test 1 with priorities: {}".format(priority_scheme))
                 test1_return_value = test1()
@@ -315,7 +315,7 @@ def test3(node1, node2, guid_list):
         counter += 1
 
     if "SMINFO_MASTER" in sminfo_output[0]:
-        print("Node2 ({}) correctly reporting now being the master node. Failover time = ~{} seconds".format(node2_name, counter))
+        print("Node2 ({}) correctly reporting now being the master node. Failover time took ~{} seconds".format(node2_name, counter))
     else:
         return [False, "Node2({}) is not reporting to be the master node. Output from sminfo: {}".format(node2_name,sminfo_output)]
 
