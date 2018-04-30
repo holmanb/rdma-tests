@@ -448,4 +448,4 @@ def test4(node1, node2, guid_list):
     return [True, "Test 4 completed successfully"]
 
 MasterTest = subtest.Subtest(test=masterTest, name="ib sm failover tests", number='1')
-Table5 = Test.Test(tests=[MasterTest],  description="ib sm tests")
+sm_failover_test = Test.Test(tests=[MasterTest],  description="ib sm failover tests")
