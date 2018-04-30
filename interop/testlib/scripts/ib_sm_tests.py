@@ -76,24 +76,36 @@ def masterTest():
                 print("Starting test 1 with priorities: {}".format(priority_scheme))
                 test1_return_value = test1()
                 if test1_return_value[0] == False:
+                    # Restoring previous priority values for both nodes
+                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority {}/g' /etc/opensm/opensm.conf".format(node1_prev_priority))
+                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority {}/g' /etc/opensm/opensm.conf".format(node2_prev_priority))
                     return [False, "Test 1 failed on node pair {}, {}\nPriority scheme: {}\n Test error output: {}".format(node1_name, node2_name, priority_scheme, test1_return_value[1])]
 
                 #run test 2
                 print("\nStarting test 2 with priorities: {}".format(priority_scheme))
                 test2_return_value = test2(node1, node2, netdiscover_guid_list)
                 if test2_return_value[0] == False:
+                    # Restoring previous priority values for both nodes
+                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority {}/g' /etc/opensm/opensm.conf".format(node1_prev_priority))
+                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority {}/g' /etc/opensm/opensm.conf".format(node2_prev_priority))
                     return [False, "Test 2 failed on node pair {}, {}\nPriority scheme: {}\n Test error output: {}".format(node1_name, node2_name, priority_scheme, test2_return_value[1])]
 
                 #run test 3
                 print("\nStarting test 3 with priorities: {}".format(priority_scheme))
                 test3_return_value = test3(node1, node2, netdiscover_guid_list)
                 if test3_return_value[0] == False:
+                    # Restoring previous priority values for both nodes
+                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority {}/g' /etc/opensm/opensm.conf".format(node1_prev_priority))
+                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority {}/g' /etc/opensm/opensm.conf".format(node2_prev_priority))
                     return [False, "Test 3 failed on node pair {}, {}\nPriority scheme: {}\n Test error output: {}".format(node1_name, node2_name, priority_scheme, test3_return_value[1])]
 
                 #run test 4
                 print("\nStarting test 4 with priorities: {}".format(priority_scheme))
                 test4_return_value = test4(node1, node2, netdiscover_guid_list)
                 if test4_return_value[0] == False:
+                    # Restoring previous priority values for both nodes
+                    node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority {}/g' /etc/opensm/opensm.conf".format(node1_prev_priority))
+                    node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority {}/g' /etc/opensm/opensm.conf".format(node2_prev_priority))
                     return [False, "Test 4 failed on node pair {}, {}\nPriority scheme: {}\n Test error output: {}".format(node1_name, node2_name, priority_scheme, test4_return_value[1])]
 
                 counter += 1
