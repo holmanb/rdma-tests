@@ -71,7 +71,8 @@ def masterTest():
                     priority_scheme = "{} priority = 10. {} priority = 10".format(node1_name, node2_name)
 
                 # run the tests with the node pair
-                print("\n--------------------")
+                title_text = " Node Pair: {} and {}".format(node1_name, node2_name)
+                print("+{:-<50}+\n|{: <50}|\n+{:-<50}+".format("", title_text, ""))
                 #run test 1
                 print("Starting test 1 with priorities: {}".format(priority_scheme))
                 test1_return_value = test1()
@@ -306,9 +307,9 @@ def test3(node1, node2, guid_list):
     # Verify the other active SM goes into the master state using sminfo again.
     sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
 
-    print("Waiting for node 2 ({}) to take master position. This could take up to 60 seconds...".format(node2_name))
+    print("Waiting for node 2 ({}) to take master position. This could take up to 90 seconds...".format(node2_name))
     counter = 0
-    while "SMINFO_MASTER" not in sminfo_output[0] and counter < 60:
+    while "SMINFO_MASTER" not in sminfo_output[0] and counter < 90:
         time.sleep(1)
         sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
         counter += 1
