@@ -306,6 +306,7 @@ def test3(node1, node2, guid_list):
     # Verify the other active SM goes into the master state using sminfo again.
     sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
 
+    print("Waiting for node 2 ({}) to take master position. This could take up to 60 seconds...".format(node2_name))
     counter = 0
     while "SMINFO_MASTER" not in sminfo_output[0] and counter < 60:
         time.sleep(1)
