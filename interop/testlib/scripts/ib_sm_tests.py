@@ -311,9 +311,10 @@ def test3(node1, node2, guid_list):
     while "SMINFO_MASTER" not in sminfo_output[0] and counter < 60:
         time.sleep(1)
         sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
+        counter += 1
 
     if "SMINFO_MASTER" in sminfo_output[0]:
-        print("Node2 ({}) correctly reporting now being the master node".format(node2_name))
+        print("Node2 ({}) correctly reporting now being the master node. Failover time = ~{} seconds".format(node2_name, counter))
     else:
         return [False, "Node2({}) is not reporting to be the master node. Output from sminfo: {}".format(node2_name,sminfo_output)]
 
@@ -346,7 +347,7 @@ def test3(node1, node2, guid_list):
     node2_state = str(re.search(r"state \d(.*)", node2_sminfo_output[0])[1]).strip()
 
     if node1_state == "SMINFO_MASTER" and node2_state == "SMINFO_STANDBY":
-        print("Node 1 ({}) correctly resumed it's position as master again")
+        print("Node 1 ({}) correctly resumed it's position as master again".format(node1_name))
     elif node1_state == "SMINFO_STANDBY" and node2_state == "SMINFO_MASTER":
         return [False, "Node 1 ({}) did not resume it's position as master after is started again:\n {} state = {}\n{} state = {}".format(node1_name,node1_name, node1_state, node2_name, node2_state)]
     else:
