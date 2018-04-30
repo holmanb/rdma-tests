@@ -426,7 +426,7 @@ def test4(node1, node2, guid_list):
     # Verify that the previous master SM is still the master. 
     sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
 
-    if "SMINFO_STANDBY" in sminfo_output[0]:
+    if "SMINFO_MASTER" in sminfo_output[0]:
         print("Node 1 ({}) correctly still reporting being the master node.".format(node1_name))
     else:
         return [False, "Node 1 ({}) is not reporting to be the master node. Output from sminfo: {}".format(node1_name,sminfo_output)]
