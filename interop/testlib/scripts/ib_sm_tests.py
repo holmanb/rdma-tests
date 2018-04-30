@@ -79,19 +79,19 @@ def masterTest():
                     return [False, "Test 1 failed on node pair {}, {}\nPriority scheme: {}\n Test error output: {}".format(node1_name, node2_name, priority_scheme, test1_return_value[1])]
 
                 #run test 2
-                print("starting test 2 with priorities: {}".format(priority_scheme))
+                print("\nStarting test 2 with priorities: {}".format(priority_scheme))
                 test2_return_value = test2(node1, node2, netdiscover_guid_list)
                 if test2_return_value[0] == False:
                     return [False, "Test 2 failed on node pair {}, {}\nPriority scheme: {}\n Test error output: {}".format(node1_name, node2_name, priority_scheme, test2_return_value[1])]
 
                 #run test 3
-                print("starting test 3 with priorities: {}".format(priority_scheme))
+                print("\nStarting test 3 with priorities: {}".format(priority_scheme))
                 test3_return_value = test3(node1, node2, netdiscover_guid_list)
                 if test3_return_value[0] == False:
                     return [False, "Test 3 failed on node pair {}, {}\nPriority scheme: {}\n Test error output: {}".format(node1_name, node2_name, priority_scheme, test3_return_value[1])]
 
                 #run test 4
-                print("starting test 4 with priorities: {}".format(priority_scheme))
+                print("\nStarting test 4 with priorities: {}".format(priority_scheme))
                 test4_return_value = test4(node1, node2, netdiscover_guid_list)
                 if test4_return_value[0] == False:
                     return [False, "Test 4 failed on node pair {}, {}\nPriority scheme: {}\n Test error output: {}".format(node1_name, node2_name, priority_scheme, test4_return_value[1])]
@@ -283,8 +283,8 @@ def test3(node1, node2, guid_list):
     # Shutdown the master SM.
     print("Shutting down master SM ({})...".format(node1_name))
     node1.sm.stop()
-    # Wait a second for SM to stop
-    time.sleep(1)
+    # Wait three seconds for SM to stop
+    time.sleep(3)
     #Verify SM is stopped
     if node1.sm.status() == 'active':
         return [False, "Step7: Node 1 ({}) failed to shutdown".format(node1_name)]
@@ -317,8 +317,8 @@ def test3(node1, node2, guid_list):
     print("Starting subnet manager on {}...".format(node1_name))
     if not node1.sm.start():
         return [False, "Subnet manager on node {} failed to start".format(node1_name)]
-    # Wait 1 second for sm to start
-    time.sleep(1)
+    # Wait 3 seconds for sm to start
+    time.sleep(3)
 
     # Verify that the newly started SM resumes it's position as master while the other goes into standby again
     node1_sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
