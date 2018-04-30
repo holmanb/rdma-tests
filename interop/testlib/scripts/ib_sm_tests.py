@@ -56,19 +56,19 @@ def masterTest():
                 if priority_case == 0:
                     node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 11/g' /etc/opensm/opensm.conf")
                     node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 10/g' /etc/opensm/opensm.conf")
-                    priority_scheme = "{} priority = 2. {} priority = 1".format(node1_name, node2_name)
+                    priority_scheme = "{} priority = 11. {} priority = 10".format(node1_name, node2_name)
 
                 # node2 has higher priority than node1
                 elif priority_case == 1:
                     node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 10/g' /etc/opensm/opensm.conf")
                     node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 11/g' /etc/opensm/opensm.conf")
-                    priority_scheme = "{} priority = 1. {} priority = 2".format(node1_name, node2_name)
+                    priority_scheme = "{} priority = 10. {} priority = 11".format(node1_name, node2_name)
 
                 # node1 and node2 have same priority
                 elif priority_case == 2:
                     node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 10/g' /etc/opensm/opensm.conf")
                     node2.command("sudo sed -i -e 's/sm_priority.*/sm_priority 10/g' /etc/opensm/opensm.conf")
-                    priority_scheme = "{} priority = 1. {} priority = 1".format(node1_name, node2_name)
+                    priority_scheme = "{} priority = 10. {} priority = 10".format(node1_name, node2_name)
 
                 # run the tests with the node pair
                 print("\n--------------------")
@@ -296,7 +296,7 @@ def test3(node1, node2, guid_list):
     print("Shutting down master SM ({})...".format(node1_name))
     node1.sm.stop()
     # Wait three seconds for SM to stop
-    time.sleep(3)
+    time.sleep(10)
     #Verify SM is stopped
     if node1.sm.status() == 'active':
         return [False, "Step7: Node 1 ({}) failed to shutdown".format(node1_name)]
