@@ -51,7 +51,7 @@ def masterTest():
             node1_prev_priority = str(re.search(r"sm_priority(.*)", node1_opensm_conf[0])[1]).strip()
             node2_prev_priority = str(re.search(r"sm_priority(.*)", node2_opensm_conf[0])[1]).strip()
 
-            for priority_case in range(0, 2):
+            for priority_case in range(0, 3):
                 # node1 has higher priority than node2
                 if priority_case == 0:
                     node1.command("sudo sed -i -e 's/sm_priority.*/sm_priority 11/g' /etc/opensm/opensm.conf")
@@ -429,7 +429,7 @@ def test4(node1, node2, guid_list):
     if "SMINFO_MASTER" in sminfo_output[0]:
         print("Node 1 ({}) correctly still reporting being the master node.".format(node1_name))
     else:
-        return [False, "Node 1 ({}) is not reporting to be the master node. Output from sminfo: {}".format(node1_name,sminfo_output)]
+        return [False, "Node 1 ({}) is not reporting to be the master node. Output from sminfo:\n{}".format(node1_name,sminfo_output)]
 
     # Run 'saquery' on a node in the current pair
     print("Running saquery on {}".format(node1_name))
