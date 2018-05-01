@@ -447,5 +447,5 @@ def test4(node1, node2, guid_list):
 
     return [True, "Test 4 completed successfully"]
 
-MasterTest = subtest.Subtest(test=masterTest, name="Tests that the subnet manager failover functions properly. Includes Tests 1-4", number='1')
-IBSmFailover = Test.Test(tests=[MasterTest],  description="Tests that the subnet manager failover functions properly")
+MasterTest = subtest.Subtest(test=masterTest, name="Tests that the subnet manager failover functions properly. Includes Tests 1-4.", number='1')
+IBSmFailover = Test.Test(tests=[MasterTest],  description="Tests that the subnet manager failover functions properly.")
