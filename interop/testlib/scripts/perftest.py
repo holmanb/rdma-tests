@@ -199,10 +199,11 @@ IBPerftest = test.Test(tests=subtests, description="Tests core RDMA operations a
 
 def stress_test():
     streamctl.stdout.on()
-    input = input("Do the thing, then type \'done\'")
-    print("Received: {}".format(input))
+    i = input("Do the thing, then type \'done\'")
+    print("Received: {}".format(i))
     streamctl.stdout.off()
+    return [False, "sample test"]
 
-subtest=(subtest.Subtest(test=stress_test, name="INSERT NAME HERE ->", number='1'))
-IBStresstest= test.Test(tests=subtest, description="Tests core RDMA operations across a network, validates operation of endpoints at the RDMA level.")
+subtest=(subtest.Subtest(test=stress_test, name="Switch Load In ", number='1'))
+IBStresstest= test.Test(tests=[subtest], description="Tests core RDMA operations across a network, validates operation of endpoints at the RDMA level.")
 

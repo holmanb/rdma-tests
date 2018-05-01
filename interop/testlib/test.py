@@ -31,6 +31,8 @@ class Test:
             TestInitializationError("Just give us a few words to describe your test, please")
         if not tests:
             TestInitializationError("Need a list of subtests to execute")
+        if not isinstance(tests, list):
+            TestInitializationError("Need to initialize the test object with a list of subtests")
 
         # Make sure it's a test
         for test in tests:
