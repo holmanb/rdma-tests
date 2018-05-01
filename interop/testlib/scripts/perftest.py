@@ -198,7 +198,11 @@ IBPerftest = test.Test(tests=subtests, description="Tests core RDMA operations a
 
 
 def stress_test():
-    pass
-subtest=(subtest.Subtest(test=perftest, name="Large RDMA Send", number='6',arg='ib_send_bw '+large_test))
-IBPerftest = test.Test(tests=subtests, description="Tests core RDMA operations across a network, validates operation of endpoints at the RDMA level.")
+    streamctl.stdout.on()
+    input = input("Do the thing, then type \'done\'")
+    print("Received: {}".format(input))
+    streamctl.stdout.off()
+
+subtest=(subtest.Subtest(test=stress_test, name="INSERT NAME HERE ->", number='1'))
+IBStresstest= test.Test(tests=subtest, description="Tests core RDMA operations across a network, validates operation of endpoints at the RDMA level.")
 
