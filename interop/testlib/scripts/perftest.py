@@ -3,10 +3,12 @@ import testlib.subtest as subtest
 import testlib.classes.network as network
 import testlib.streamctl as streamctl
 
+import unicodedata
 import socket
 import errno
 import time
 import threading
+import statistics
 
 # 13.5 TI RDMA Basic Interop
 
@@ -32,15 +34,18 @@ def swap_nodes(node1, node2, test_function):
 
     count = 0
     sumation = 0
+    outputs = []
     for item in output_list:
         for line in item:
-            sumation += float(line.split()[3])
+            outputs.append(float(line.split()[3]))
+            sumation += outputs[-1]
             count +=1
 
     # Compile test results into a single return value 
     average = sumation/count
 
-    return average
+    stdev = statistics.stdev(outputs)
+    return average,stdev
 
 
 def get_ib_dev_name(node):
@@ -180,7 +185,10 @@ def perftest(command):
         time.sleep(1)
         return server_out, client_out
 
-    return [True, str(swap_nodes(network.nodes[1],network.nodes[2],read_bw))]
+    output = swap_nodes(network.nodes[1],network.nodes[2],read_bw)
+    average = "{0:.2f} Gb/s ".format(float(output[0])*8/1000)
+    stdev="{:s}({:.3f})".format(unicodedata.lookup("GREEK SMALL LETTER SIGMA"),float(output[1]))
+    return [True, "{: >15}{: >10}".format(average, stdev)]
 
 
 small_test= "-d {} -i 1 -p {} -s 1 -n 25000 -m 2048 {} -F"
@@ -199,7 +207,7 @@ IBPerftest = test.Test(tests=subtests, description="Tests core RDMA operations a
 
 def stress_test():
     streamctl.stdout.on()
-    i = input("Do the thing, then type \'done\'")
+    i = input("Select two ports such that it has to cross both switches.")
     print("Received: {}".format(i))
     streamctl.stdout.off()
     return [False, "sample test"]
