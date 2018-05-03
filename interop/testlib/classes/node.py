@@ -130,13 +130,15 @@ class Node:
                     mykey = paramiko.RSAKey.from_private_key_file(privatekeyfile)
                 except FileNotFoundError as e:
                     raise RSAKeySetupError("RSA keys need to be setup")
-                
+
                 try:
                     o=[]
                     ssh.connect(str(self.ethif.ip), port=22, username=username, pkey=mykey)
+
+                    # Kill if disconnected
                     stdin, stdout, stderr = ssh.exec_command(command)
                     output = "".join(stdout.readlines())
-                    stderr_output = "".join(stderr.readlines()) 
+                    stderr_output = "".join(stderr.readlines())
                     if not output:
                         output = ""
                     if not stderr_output:
@@ -148,7 +150,7 @@ class Node:
                     raise e
                 finally:
                     ssh.close()
-                    return o 
+                    return o
         except Exception as e:
             print("error in command() on node: " + str(self.ethif.ip))
             raise e

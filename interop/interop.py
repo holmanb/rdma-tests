@@ -20,13 +20,14 @@ import pkgutil
 import importlib
 import datetime
 import traceback
+import subprocess
 
 # User Defined Modules 
 import testlib
 import testlib.validate
 from testlib.moduleloader import load_modules
-import testlib.classes.network as network
 import testlib.test
+import testlib.streamctl as streamctl
 
 
 # Save tty settings
@@ -153,7 +154,7 @@ def print_tests(TESTS):
 
 
 def print_groups(GROUPS):
-    """ Prints formatted groups available for testing 
+    """ Prints formatted groups avail as streamctlable for testing 
     """
     # Printing groups
     print("Printing available groups...\n")
@@ -179,12 +180,8 @@ def validate_args(args, dictionary, logger):
         try:
             dictionary[key]
 
-        except KeyError:
-
-            # Fail
-            for dict_key,value in dictionary.items():
-                logger.debug("key: {} value{}".format(dict_key,value))
-            logger.error("{} is not a valid input.  Use {} -pt or {} -pg to print options".format(key,os.path.basename(__file__),os.path.basename(__file__)))
+        except KeyError as e:
+            sys.stderr.write("[{}] is not a valid argument, use {} -pt or {} -pt to print valid options\n".format(key,os.path.basename(__file__),os.path.basename(__file__)))
             return (-1)
 
     # Success
@@ -249,12 +246,14 @@ def run_subtests(tests, verbose):
 
                             # Run the test
                             if not verbose:
-                                sys.stdout = f
+                                streamctl.stdout.off()
+                                #sys.stdout = f
                             output = subtest.run()
 
                             # Turn off printing 
                             if not verbose:
-                                sys.stdout = old_stdout
+                                streamctl.stdout.on()
+                                #sys.stdout = old_stdout
 
                             # Formatting stdout and writing to csv
                             str_print = "\t{} | {} | {} |  {} ".format(r_pad(subtest.number, 5), r_pad(subtest.name, 25), 'Passed' if output["success"] else 'Failed', output["comments"])
@@ -280,11 +279,6 @@ def run_subtests(tests, verbose):
                         sys.stdout = old_stdout
                     traceback.print_tb(e.__traceback__)
                     print(e)
-#        finally:
-#            if not verbose:
-        #with open(OUTPUT, 'a+') as f:
-        #    f.write("Testresults[],")
-
 
 
 def main():
@@ -333,6 +327,7 @@ def main():
 
     # Print network status
     if args.print_status:
+        import testlib.classes.network as network # takes about 2 seconds
         network.print_status()
         return 0
 
@@ -403,6 +398,8 @@ def main():
 
         # Validate argument and get list (if comma delimited list is given)
         arg_list = validate_args(args.group, GROUPS, logger)
+        if arg_list == -1:
+            return -1
 
         # Remove duplicate tests
         test_dict = {}
@@ -423,6 +420,8 @@ def main():
 
         # Validate argument and get list (if comma delimited list is given)
         arg_list = validate_args(args.test, TESTS,logger)
+        if arg_list == -1:
+            return -1
 
         # Create the list of tests
         tests = {}
@@ -435,6 +434,13 @@ def main():
 
 
 if __name__ == "__main__":
+    # Saving off the tty settings
+    stty = ""
+    with subprocess.Popen(["stty","-a"], stdout=subprocess.PIPE) as proc:
+        stty = proc.stdout.read().decode("utf-8")
+    stty=stty.split()
+    back_index = stty.index('erase')
+    back_char = stty[back_index + 2].strip(';')
     try:
         main()
         exit()
@@ -443,4 +449,5 @@ if __name__ == "__main__":
     finally:
         os.system('stty `cat ~/.stty`')
         os.system('stty echo')
+        os.system('stty erase {}'.format(back_char))
 

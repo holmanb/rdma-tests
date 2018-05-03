@@ -3,20 +3,23 @@ class SubtestReturnValueError(Exception):
     pass
 
 class Subtest:
-    def __init__(self,name=None,test=None,number=None):
+    def __init__(self,name=None,test=None,number=None,arg=None):
         """ Lightweight class for subtests
         """
         self.name=name
         self.test=test
         self.number=number
+        self.arg=arg
 
     def run(self):
         """ Run the subtest
         """
+
         def validate_output(output):
 
             # Tests must conform to the output describied in this string
-            error =  "Tests must return the following format: [bool_pass_or_fail, str_description]\n"
+            error =  "ERROR: In test {} {}\n".format(self.name, self.number)
+            error += "Tests must return the following format: [bool_pass_or_fail, str_description]\n"
             error += "If tests cannot complete, they should raise TestCannotComplete() exception explaining the error"
 
             # Validate output
@@ -24,7 +27,12 @@ class Subtest:
             if not valid_output:
                 raise SubtestReturnValueError(error)
 
-        output = self.test()
+        # In case arguments need to be passed 
+        if not self.arg:
+            output = self.test()
+        else:
+            output = self.test(self.arg)
+
         validate_output(output)
         return {"success" : output[0], "comments" : output [1]}
 
