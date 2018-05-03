@@ -267,121 +267,128 @@ def test2(node1, node2, guid_list):
 
 
 def test3(node1, node2, guid_list):
-    # Making sure whichever node is the master node is 'node1'. Also getting name, guid, and lid for easier testing
-    node1_name = node1.ethif.aliases[0]
-    node1_ibstat_output = node1.command("sudo ibstat")
-    node1_guid = str(re.search(r"Node GUID.*0x(.*)", node1_ibstat_output[0])[1]).strip()
-    node1_lid = str(re.search(r"Base lid:(.*)", node1_ibstat_output[0])[1]).strip()
-    node1_sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
-    node1_state = str(re.search(r"state \d(.*)", node1_sminfo_output[0])[1]).strip()
 
-    node2_name = node2.ethif.aliases[0]
-    node2_ibstat_output = node2.command("sudo ibstat")
-    node2_guid = str(re.search(r"Node GUID.*0x(.*)", node2_ibstat_output[0])[1]).strip()
-    node2_lid = str(re.search(r"Base lid:(.*)", node2_ibstat_output[0])[1]).strip()
-    node2_sminfo_output = node1.command("sudo sminfo -L {}".format(node2_lid))
-    node2_state = str(re.search(r"state \d(.*)", node2_sminfo_output[0])[1]).strip()
+    try:
+        # Making sure whichever node is the master node is 'node1'. Also getting name, guid, and lid for easier testing
+        node1_name = node1.ethif.aliases[0]
+        node1_ibstat_output = node1.command("sudo ibstat")
+        node1_guid = str(re.search(r"Node GUID.*0x(.*)", node1_ibstat_output[0])[1]).strip()
+        node1_lid = str(re.search(r"Base lid:(.*)", node1_ibstat_output[0])[1]).strip()
+        node1_sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
+        node1_state = str(re.search(r"state \d(.*)", node1_sminfo_output[0])[1]).strip()
 
-    if node1_state == "SMINFO_MASTER" and node2_state == "SMINFO_STANDBY":
-        pass
-    elif node1_state == "SMINFO_STANDBY" and node2_state == "SMINFO_MASTER":
-        # Swapping node 1 and 2 if node 2 is the master. This just keeps the master node as 'node1'
-        node_temp = node1
-        node_temp_guid = node1_guid
-        node_temp_lid = node1_lid
-        node_temp_name = node1_name
+        node2_name = node2.ethif.aliases[0]
+        node2_ibstat_output = node2.command("sudo ibstat")
+        node2_guid = str(re.search(r"Node GUID.*0x(.*)", node2_ibstat_output[0])[1]).strip()
+        node2_lid = str(re.search(r"Base lid:(.*)", node2_ibstat_output[0])[1]).strip()
+        node2_sminfo_output = node1.command("sudo sminfo -L {}".format(node2_lid))
+        node2_state = str(re.search(r"state \d(.*)", node2_sminfo_output[0])[1]).strip()
 
-        node1 = node2
-        node1_guid = node2_guid
-        node1_lid = node2_lid
-        node1_name = node2_name
+        if node1_state == "SMINFO_MASTER" and node2_state == "SMINFO_STANDBY":
+            pass
+        elif node1_state == "SMINFO_STANDBY" and node2_state == "SMINFO_MASTER":
+            # Swapping node 1 and 2 if node 2 is the master. This just keeps the master node as 'node1'
+            node_temp = node1
+            node_temp_guid = node1_guid
+            node_temp_lid = node1_lid
+            node_temp_name = node1_name
+
+            node1 = node2
+            node1_guid = node2_guid
+            node1_lid = node2_lid
+            node1_name = node2_name
+            
+            node2 = node_temp
+            node2_guid = node_temp_guid
+            node2_lid = node_temp_lid
+            node2_name = node_temp_name
+        else:
+            return [False, "Error determining which node is master:\n{} state = {}\n{} state = {}".format(node1_name, node1_state, node2_name, node2_state)]
+
         
-        node2 = node_temp
-        node2_guid = node_temp_guid
-        node2_lid = node_temp_lid
-        node2_name = node_temp_name
-    else:
-        return [False, "Error determining which node is master:\n{} state = {}\n{} state = {}".format(node1_name, node1_state, node2_name, node2_state)]
+        # Shutdown the master SM.
+        print("Shutting down master SM ({})...".format(node1_name))
+        node1.sm.stop()
+        # Wait three seconds for SM to stop
+        time.sleep(3)
+        #Verify SM is stopped
+        if node1.sm.status() == 'active':
+            return [False, "Step 7: Node 1 ({}) failed to shutdown".format(node1_name)]
+        else:
+            print("Master SM successfully shutdown")
 
-    
-    # Shutdown the master SM.
-    print("Shutting down master SM ({})...".format(node1_name))
-    node1.sm.stop()
-    # Wait three seconds for SM to stop
-    time.sleep(3)
-    #Verify SM is stopped
-    if node1.sm.status() == 'active':
-        return [False, "Step 7: Node 1 ({}) failed to shutdown".format(node1_name)]
-    else:
-        print("Master SM successfully shutdown")
-
-    # Verify the other active SM goes into the master state using sminfo again.
-    # Can take up to 90 seconds (made up that number) for the sm to take over master state
-    sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
-
-    print("Waiting for node 2 ({}) to take master position. This could take up to 90 seconds...".format(node2_name))
-    counter = 0
-    while "SMINFO_MASTER" not in sminfo_output[0] and counter < 90:
-        # Sends sminfo command every second until the SM takes master state
-        time.sleep(1)
+        # Verify the other active SM goes into the master state using sminfo again.
+        # Can take up to 90 seconds (made up that number) for the sm to take over master state
         sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
-        counter += 1
 
-    if "SMINFO_MASTER" in sminfo_output[0]:
-        print("Node2 ({}) correctly reporting now being the master node. Failover time took ~{} seconds".format(node2_name, counter))
-    else:
-        return [False, "Node2({}) is not reporting to be the master node. Output from sminfo: {}".format(node2_name,sminfo_output)]
+        print("Waiting for node 2 ({}) to take master position. This could take up to 90 seconds...".format(node2_name))
+        counter = 0
+        while "SMINFO_MASTER" not in sminfo_output[0] and counter < 90:
+            # Sends sminfo command every second until the SM takes master state
+            time.sleep(1)
+            sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
+            counter += 1
 
-    # Run 'saquery' on a node in the current pair
-    print("Running saquery on {}".format(node1_name))
-    saquery_output = node1.command("sudo saquery -t 5000")
+        if "SMINFO_MASTER" in sminfo_output[0]:
+            print("Node2 ({}) correctly reporting now being the master node. Failover time took ~{} seconds".format(node2_name, counter))
+        else:
+            return [False, "Node2({}) is not reporting to be the master node. Output from sminfo: {}".format(node2_name,sminfo_output)]
 
-    # Parsing 'saquery' and adding all node guids to list
-    saquery_guid_list = re.findall(r".*node_guid.*0x(.*)", saquery_output[0])
+        # Run 'saquery' on a node in the current pair
+        print("Running saquery on {}".format(node1_name))
+        saquery_output = node1.command("sudo saquery -t 5000")
 
-    # Verifying all nodes are present in saquery output by comparing the given guid_list to the one from saquery
-    compare_value = set(guid_list) & set(saquery_guid_list)
-    if len(compare_value) != len(guid_list):
-        return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1_name)]
-    else:
-        print("All nodes were successfully verified and present in saquery output")
+        # Parsing 'saquery' and adding all node guids to list
+        saquery_guid_list = re.findall(r".*node_guid.*0x(.*)", saquery_output[0])
 
-    # Start the SM that was just shutdown
-    print("Starting subnet manager on {}...".format(node1_name))
-    if not node1.sm.start():
-        return [False, "Subnet manager on node {} failed to start".format(node1_name)]
-    # Wait 3 seconds for sm to start
-    time.sleep(3)
+        # Verifying all nodes are present in saquery output by comparing the given guid_list to the one from saquery
+        compare_value = set(guid_list) & set(saquery_guid_list)
+        if len(compare_value) != len(guid_list):
+            return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1_name)]
+        else:
+            print("All nodes were successfully verified and present in saquery output")
 
-    # Verify that the newly started SM resumes it's position as master while the other goes into standby again
-    node1_sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
-    node1_state = str(re.search(r"state \d(.*)", node1_sminfo_output[0])[1]).strip()
+        # Start the SM that was just shutdown
+        print("Starting subnet manager on {}...".format(node1_name))
+        if not node1.sm.start():
+            return [False, "Subnet manager on node {} failed to start".format(node1_name)]
+        # Wait 3 seconds for sm to start
+        time.sleep(3)
 
-    node2_sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
-    node2_state = str(re.search(r"state \d(.*)", node2_sminfo_output[0])[1]).strip()
+        # Verify that the newly started SM resumes it's position as master while the other goes into standby again
+        node1_sminfo_output = node1.command("sudo sminfo -L {}".format(node1_lid))
+        node1_state = str(re.search(r"state \d(.*)", node1_sminfo_output[0])[1]).strip()
 
-    if node1_state == "SMINFO_MASTER" and node2_state == "SMINFO_STANDBY":
-        print("Node 1 ({}) correctly resumed it's position as master again".format(node1_name))
-    elif node1_state == "SMINFO_STANDBY" and node2_state == "SMINFO_MASTER":
-        return [False, "Node 1 ({}) did not resume it's position as master after is started again:\n {} state = {}\n{} state = {}".format(node1_name,node1_name, node1_state, node2_name, node2_state)]
-    else:
-        return [False, "Some nodes are not reporting the correct state after master is started again:\n {} state = {}\n{} state = {}".format(node1_name, node1_state, node2_name, node2_state)]
+        node2_sminfo_output = node2.command("sudo sminfo -L {}".format(node2_lid))
+        node2_state = str(re.search(r"state \d(.*)", node2_sminfo_output[0])[1]).strip()
+
+        if node1_state == "SMINFO_MASTER" and node2_state == "SMINFO_STANDBY":
+            print("Node 1 ({}) correctly resumed it's position as master again".format(node1_name))
+        elif node1_state == "SMINFO_STANDBY" and node2_state == "SMINFO_MASTER":
+            return [False, "Node 1 ({}) did not resume it's position as master after is started again:\n {} state = {}\n{} state = {}".format(node1_name,node1_name, node1_state, node2_name, node2_state)]
+        else:
+            return [False, "Some nodes are not reporting the correct state after master is started again:\n {} state = {}\n{} state = {}".format(node1_name, node1_state, node2_name, node2_state)]
 
 
-    # Run 'saquery' on a node in the current pair
-    print("Running saquery on {}".format(node1_name))
-    saquery_output = node1.command("sudo saquery -t 5000")
+        # Run 'saquery' on a node in the current pair
+        print("Running saquery on {}".format(node1_name))
+        saquery_output = node1.command("sudo saquery -t 5000")
 
-    # Parsing 'saquery' and adding all node guids to list
-    saquery_guid_list = re.findall(r".*node_guid.*0x(.*)", saquery_output[0])
+        # Parsing 'saquery' and adding all node guids to list
+        saquery_guid_list = re.findall(r".*node_guid.*0x(.*)", saquery_output[0])
 
-    # Verifying all nodes are present in saquery output by comparing the given guid_list to the one from saquery
-    compare_value = set(guid_list) & set(saquery_guid_list)
-    if len(compare_value) != len(guid_list):
-        return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1_name)]
-    else:
-        print("All nodes were successfully verified and present in saquery output")
+        # Verifying all nodes are present in saquery output by comparing the given guid_list to the one from saquery
+        compare_value = set(guid_list) & set(saquery_guid_list)
+        if len(compare_value) != len(guid_list):
+            return [False, "Could not verify all nodes are present in saquery on node: {}".format(node1_name)]
+        else:
+            print("All nodes were successfully verified and present in saquery output")
+    
 
+    except KeyboardInterrupt:
+        print("Keyboard exception was caught, cleaning up priorities to previous values")
+        #failing test for keyboard interrupt
+        return [False, "keyboard interrupt detected, failing test"]
 
     return [True, "Test 3 completed successfully"]
 
