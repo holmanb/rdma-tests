@@ -25,7 +25,6 @@ if [ "$RHEL" -ne -1 ]; then
 	# For handling project dependencies
 	sudo yum install epel-release -y
 	sudo yum install python34 -y
-	sudo yum install nmap -y
 
 	# Pip and python development package
 	sudo yum install python34-pip -y
@@ -36,7 +35,6 @@ if [ "$RHEL" -ne -1 ]; then
 
 	# install paramiko
 	sudo pip3 install paramiko
-	sudo pip3 install python-nmap
 
 # for suse
 elif [ "$SUSE" -ne -1 ]; then
@@ -44,7 +42,6 @@ elif [ "$SUSE" -ne -1 ]; then
 	# Pip and python development package
 	sudo zypper install -y python3-pip 
 	sudo zypper install -y python3-devel 
-	sudo zypper install -y nmap 
 
 	# Get non-python paramiko dependencies
 	sudo zypper install -y gcc libffi-devel openssl-devel 
@@ -52,7 +49,6 @@ elif [ "$SUSE" -ne -1 ]; then
 	# install paramiko
     sudo pip3 install --upgrade pip
 	sudo pip3 install paramiko
-	sudo pip3 install python-nmap
 
 fi
 
@@ -69,26 +65,24 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PERSIST_FILE=".bashrc"
 echo
 echo "persistantly adding interop.py to PATH via ~/.bashrc"
-echo "export PATH=$PATH:$DIR/interop" >> /home/$SUDO_USER/$PERSIST_FILE
+echo "export PATH=$PATH:$DIR/interop" >> $HOME/$PERSIST_FILE
 
 # Add network module to PYTHONPATH
 echo
 echo "persistantly adding network module to PYTHONPATH via ~/.bashrc"
-echo "export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes" >> /home/$SUDO_USER/$PERSIST_FILE
+echo "export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes" >> $HOME/$PERSIST_FILE
 
-# Make .profile have correct permissions
-chown $SUDO_USER /home/$SUDO_USER/$PERSIST_FILE
+# Make the persistant file have correct permissions
+chown $SUDO_USER $HOME/$PERSIST_FILE
 
 # Makes current shell work 
 echo
-echo "exporting PATH and PYTHONPATH to current shell"
-export PATH=$PATH:$DIR/interop
-export PYTHONPATH=$PYTHONPATH:$DIR/interop/testlib/classes
+echo "start a new shell or run `$ source $HOME/$PERSIST_FILE`  for the environment variables to be available"
 
-# Set up rsa_keys
-echo "setting up rsa keys"
-cp /root/.ssh/id_rsa /home/$SUDO_USER/.ssh/
-chown $SUDO_USER /home/$SUDO_USER/.ssh/id_rsa
+# Set up rsa_keys for non-root user
+#echo "setting up rsa keys"
+#cp /root/.ssh/id_rsa /home/$SUDO_USER/.ssh/
+#chown $SUDO_USER /home/$SUDO_USER/.ssh/id_rsa
 
 echo
 echo "done!"
